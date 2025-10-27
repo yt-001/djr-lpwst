@@ -4,9 +4,11 @@ import com.xitian.djrlpwst.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +21,13 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private static JwtProperties jwtProperties;
+    private static SecretKey secretKey;
     
     @Autowired
     public void setJwtProperties(JwtProperties jwtProperties) {
         JwtUtil.jwtProperties = jwtProperties;
+        // 使用JWT库生成符合HS512要求的安全密钥
+        JwtUtil.secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
     }
     
     /**
@@ -74,7 +79,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret())
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
     
@@ -84,7 +89,7 @@ public class JwtUtil {
      * @return 声明信息
      */
     public static Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(jwtProperties.getSecret()).parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
     }
     
     /**

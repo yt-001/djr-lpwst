@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @Tag(name = "认证管理", description = "用户认证相关接口")
 public class AuthController {
 
@@ -47,16 +47,12 @@ public class AuthController {
         // 验证用户邮箱或手机号和密码
         LoginResult loginResult = userService.login(emailOrPhone, password);
         if (loginResult != LoginResult.SUCCESS) {
-            switch (loginResult) {
-                case USER_NOT_EXISTS:
-                    return ResultBean.fail(StatusCode.USER_NOT_FOUND, "用户不存在");
-                case USER_DISABLED:
-                    return ResultBean.fail(StatusCode.USER_DISABLED, "用户已被禁用");
-                case PASSWORD_ERROR:
-                    return ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "密码错误");
-                default:
-                    return ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "用户名或密码错误");
-            }
+            return switch (loginResult) {
+                case USER_NOT_EXISTS -> ResultBean.fail(StatusCode.USER_NOT_FOUND, "用户不存在");
+                case USER_DISABLED -> ResultBean.fail(StatusCode.USER_DISABLED, "用户已被禁用");
+                case PASSWORD_ERROR -> ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "密码错误");
+                default -> ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "用户名或密码错误");
+            };
         }
         
         // 获取用户信息
@@ -71,6 +67,8 @@ public class AuthController {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", user.getUsername());
         claims.put("userId", user.getId());
+        claims.put("emailOrPhone", emailOrPhone);
+        claims.put("role", user.getRole());
         // 可以添加更多用户信息到claims中
         
         String accessToken = JwtUtil.generateAccessToken(claims);
@@ -130,40 +128,40 @@ public class AuthController {
         
         try {
             // 验证刷新令牌有效性
-            String username = JwtUtil.extractUsername(refreshToken);
+            String emailOrPhone = JwtUtil.extractClaim(refreshToken, claims -> claims.get("emailOrPhone", String.class));
             
-            if (username == null || JwtUtil.isTokenExpired(refreshToken)) {
+            if (emailOrPhone == null || JwtUtil.isTokenExpired(refreshToken)) {
                 return ResultBean.fail(StatusCode.TOKEN_EXPIRED, "刷新令牌已过期");
             }
             
             // 获取用户信息
-            User user = userService.findByUsername(username);
+            User user;
+            if (emailOrPhone.contains("@")) {
+                user = userService.findByEmail(emailOrPhone);
+            } else {
+                user = userService.findByPhone(emailOrPhone);
+            }
+            
             if (user == null) {
                 return ResultBean.fail(StatusCode.USER_NOT_FOUND, "用户不存在");
             }
             
-            // 生成新的访问令牌和刷新令牌
+            // 只生成新的访问令牌
             Map<String, Object> claims = new HashMap<>();
-            claims.put("username", username);
+            claims.put("username", user.getUsername());
             claims.put("userId", user.getId());
+            claims.put("emailOrPhone", user.getEmail() != null ? user.getEmail() : user.getPhone());
+            claims.put("role", user.getRole());
             
             String newAccessToken = JwtUtil.generateAccessToken(claims);
-            String newRefreshToken = JwtUtil.generateRefreshToken(claims);
             
-            // 将新令牌设置到HttpOnly Cookie中
+            // 只更新访问令牌的Cookie
             Cookie accessCookie = new Cookie("access_token", newAccessToken);
             accessCookie.setHttpOnly(true);
             accessCookie.setSecure(false);
             accessCookie.setPath("/");
             accessCookie.setMaxAge(cookieProperties.getAccessTokenExpiry());
             response.addCookie(accessCookie);
-            
-            Cookie refreshCookie = new Cookie("refresh_token", newRefreshToken);
-            refreshCookie.setHttpOnly(true);
-            refreshCookie.setSecure(false);
-            refreshCookie.setPath("/");
-            refreshCookie.setMaxAge(cookieProperties.getRefreshTokenExpiry());
-            response.addCookie(refreshCookie);
             
             // 使用转换器转换User为UserVO并返回
             UserVO userVO = userConverter.toVO(user);
@@ -188,14 +186,20 @@ public class AuthController {
         
         try {
             // 验证访问令牌有效性
-            String username = JwtUtil.extractUsername(accessToken);
+            String emailOrPhone = JwtUtil.extractClaim(accessToken, claims -> claims.get("emailOrPhone", String.class));
             
-            if (username == null || JwtUtil.isTokenExpired(accessToken)) {
+            if (emailOrPhone == null || JwtUtil.isTokenExpired(accessToken)) {
                 return ResultBean.fail(StatusCode.TOKEN_EXPIRED, "访问令牌已过期");
             }
             
             // 获取用户信息
-            User user = userService.findByUsername(username);
+            User user;
+            if (emailOrPhone.contains("@")) {
+                user = userService.findByEmail(emailOrPhone);
+            } else {
+                user = userService.findByPhone(emailOrPhone);
+            }
+            
             if (user == null) {
                 return ResultBean.fail(StatusCode.USER_NOT_FOUND, "用户不存在");
             }

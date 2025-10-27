@@ -91,6 +91,7 @@ create table users
     email         varchar(100)                       not null comment '邮箱',
     phone         varchar(20)                        null comment '手机号',
     avatar_url    varchar(255)                       null comment '头像URL',
+    role          tinyint(1) default 1               not null comment '角色(0-管理员,1-普通用户)',
     create_time   datetime default CURRENT_TIMESTAMP null comment '创建时间',
     update_time   datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
     constraint email
@@ -99,6 +100,9 @@ create table users
         unique (username)
 )
     comment '用户表' collate = utf8mb4_unicode_ci;
+
+create index idx_users_role
+    on users (role);
 
 create table bookings
 (

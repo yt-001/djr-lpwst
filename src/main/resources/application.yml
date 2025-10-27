@@ -36,7 +36,7 @@ mybatis-plus:
 # JWT配置
 jwt:
   # 密钥
-  secret: smart_health_hub_secret_key
+  secret: smarthealthhubsecretkeydawdasmarthealthhubsecretkeydawdasmarthealth
   # 访问令牌过期时间（毫秒）默认5小时
   access-token-expiration: 18000000
   # 刷新令牌过期时间（毫秒）默认7天

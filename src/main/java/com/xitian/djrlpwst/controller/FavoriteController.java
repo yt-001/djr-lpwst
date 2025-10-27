@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/favorites")
+@RequestMapping("/favorites")
 @Tag(name = "收藏管理", description = "收藏管理接口")
 public class FavoriteController extends BaseController<Favorite> {
     

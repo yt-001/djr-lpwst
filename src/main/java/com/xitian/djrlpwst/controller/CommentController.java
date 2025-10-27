@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/comments")
 @Tag(name = "评论管理", description = "评论管理接口")
 public class CommentController extends BaseController<Comment> {
     

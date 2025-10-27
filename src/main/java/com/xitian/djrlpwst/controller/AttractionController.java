@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/attractions")
+@RequestMapping("/attractions")
 @Tag(name = "景点管理", description = "景点管理接口")
 public class AttractionController extends BaseController<Attraction> {
     

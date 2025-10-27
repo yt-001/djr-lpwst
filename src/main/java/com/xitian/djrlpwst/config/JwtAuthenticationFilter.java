@@ -1,24 +1,28 @@
 package com.xitian.djrlpwst.config;
 
 import com.xitian.djrlpwst.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * JWT认证过滤器，基于HttpOnly Cookie实现认证
- * 只验证前端传送的刷新令牌
+ * 验证前端传送的刷新令牌并进行权限检查
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -31,24 +35,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response, 
                                     FilterChain filterChain) throws ServletException, IOException {
         
-        String username = null;
         String refreshToken = extractRefreshTokenFromCookie(request);
         
         if (refreshToken != null) {
             try {
-                username = jwtUtil.extractUsername(refreshToken);
+                // 验证刷新令牌有效性
+                Claims claims = jwtUtil.extractAllClaims(refreshToken);
+                String username = claims.getSubject();
+                Integer role = (Integer) claims.get("role");
+                
+                if (username != null && !jwtUtil.isTokenExpired(refreshToken)) {
+                    // 构建权限列表
+                    List<GrantedAuthority> authorities = new ArrayList<>();
+                    if (role != null) {
+                        if (role == 0) { // 管理员
+                            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                        } else if (role == 1) { // 普通用户
+                            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                        }
+                    }
+                    
+                    UsernamePasswordAuthenticationToken authToken = 
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             } catch (Exception e) {
-                logger.error("Refresh Token extraction failed", e);
-            }
-        }
-        
-        // 验证刷新令牌
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (jwtUtil.validateToken(refreshToken, username)) {
-                UsernamePasswordAuthenticationToken authToken = 
-                    new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                logger.error("Refresh Token validation failed", e);
             }
         }
         

@@ -24,6 +24,7 @@ public class UserConverter {
         vo.setPhone(entity.getPhone());
         vo.setAvatarUrl(entity.getAvatarUrl());
         vo.setStatus(entity.getStatus());
+        vo.setRole(entity.getRole());
         
         return vo;
     }

@@ -29,4 +29,7 @@ public class UserVO extends BaseVO {
     
     @Schema(description = "状态(0-禁用,1-启用)")
     private Integer status;
+    
+    @Schema(description = "角色(0-管理员,1-普通用户)")
+    private Integer role;
 }

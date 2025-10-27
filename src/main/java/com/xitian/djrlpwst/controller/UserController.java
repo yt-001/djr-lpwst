@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @Tag(name = "用户管理", description = "用户管理接口")
 public class UserController extends BaseController<User> {
     

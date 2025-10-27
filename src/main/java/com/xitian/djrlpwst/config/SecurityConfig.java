@@ -30,10 +30,19 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/user/**").hasRole("USER")
-                .anyRequest().authenticated())
+                .requestMatchers("/test-data").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/users/**").permitAll()
+                .requestMatchers("/attractions/**").permitAll()
+                .requestMatchers("/accommodations/**").permitAll()
+                .requestMatchers("/restaurants/**").permitAll()
+                .requestMatchers("/intangible-cultures/**").permitAll()
+                .requestMatchers("/comments/**").permitAll()
+                .requestMatchers("/favorites/**").permitAll()
+                .requestMatchers("/bookings/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasRole("USER")
+                .anyRequest().permitAll())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
