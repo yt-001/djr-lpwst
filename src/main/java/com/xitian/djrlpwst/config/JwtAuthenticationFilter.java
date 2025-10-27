@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.config;
 
 import com.xitian.djrlpwst.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -22,6 +23,9 @@ import java.util.ArrayList;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, 
                                     HttpServletResponse response, 
@@ -32,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         if (refreshToken != null) {
             try {
-                username = JwtUtil.extractUsername(refreshToken);
+                username = jwtUtil.extractUsername(refreshToken);
             } catch (Exception e) {
                 logger.error("Refresh Token extraction failed", e);
             }
@@ -40,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         // 验证刷新令牌
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (JwtUtil.validateToken(refreshToken, username)) {
+            if (jwtUtil.validateToken(refreshToken, username)) {
                 UsernamePasswordAuthenticationToken authToken = 
                     new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

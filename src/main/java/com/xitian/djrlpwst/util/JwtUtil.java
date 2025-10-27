@@ -1,8 +1,12 @@
 package com.xitian.djrlpwst.util;
 
+import com.xitian.djrlpwst.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,16 +15,15 @@ import java.util.function.Function;
 /**
  * JWT工具类
  */
+@Component
 public class JwtUtil {
 
-    // 密钥（生产环境中应该从配置文件读取）
-    private static final String SECRET_KEY = "smart_health_hub_secret_key";
+    private static JwtProperties jwtProperties;
     
-    // 访问令牌过期时间（毫秒）
-    private static final long ACCESS_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000; // 24小时
-    
-    // 刷新令牌过期时间（毫秒）
-    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7天
+    @Autowired
+    public void setJwtProperties(JwtProperties jwtProperties) {
+        JwtUtil.jwtProperties = jwtProperties;
+    }
     
     /**
      * 生成访问令牌
@@ -28,7 +31,17 @@ public class JwtUtil {
      * @return 访问令牌
      */
     public static String generateAccessToken(Map<String, Object> userDetails) {
-        return createToken(userDetails, ACCESS_TOKEN_EXPIRATION);
+        return createToken(userDetails, jwtProperties.getAccessTokenExpiration());
+    }
+    
+    /**
+     * 生成访问令牌（为了向后兼容）
+     * @param userDetails 用户信息
+     * @param role 用户角色
+     * @return 访问令牌
+     */
+    public static String generateAccessToken(Map<String, Object> userDetails, String role) {
+        return createToken(userDetails, jwtProperties.getAccessTokenExpiration());
     }
     
     /**
@@ -37,7 +50,17 @@ public class JwtUtil {
      * @return 刷新令牌
      */
     public static String generateRefreshToken(Map<String, Object> userDetails) {
-        return createToken(userDetails, REFRESH_TOKEN_EXPIRATION);
+        return createToken(userDetails, jwtProperties.getRefreshTokenExpiration());
+    }
+    
+    /**
+     * 生成刷新令牌（为了向后兼容）
+     * @param userDetails 用户信息
+     * @param role 用户角色
+     * @return 刷新令牌
+     */
+    public static String generateRefreshToken(Map<String, Object> userDetails, String role) {
+        return createToken(userDetails, jwtProperties.getRefreshTokenExpiration());
     }
     
     /**
@@ -51,7 +74,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret())
                 .compact();
     }
     
@@ -61,7 +84,7 @@ public class JwtUtil {
      * @return 声明信息
      */
     public static Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(jwtProperties.getSecret()).parseClaimsJws(token).getBody();
     }
     
     /**

@@ -2,6 +2,7 @@ package com.xitian.djrlpwst.bean.base;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@SuperBuilder
 public class BaseVO {
     /**
      * 编号

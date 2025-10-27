@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 9002
   servlet:
     session:
       cookie:
@@ -22,6 +22,8 @@ spring:
       min-evictable-idle-time-millis: 300000
       max-evictable-idle-time-millis: 900000
       validation-query: SELECT 1 FROM DUAL
+  application:
+    name: djr-lpwst
 
 mybatis-plus:
   configuration:
@@ -30,3 +32,19 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID
+
+# JWT配置
+jwt:
+  # 密钥
+  secret: smart_health_hub_secret_key
+  # 访问令牌过期时间（毫秒）默认5小时
+  access-token-expiration: 18000000
+  # 刷新令牌过期时间（毫秒）默认7天
+  refresh-token-expiration: 604800000
+
+# Cookie配置
+cookie:
+  # 访问令牌Cookie过期时间（秒）默认5小时
+  access-token-expiry: 18000
+  # 刷新令牌Cookie过期时间（秒）默认7天
+  refresh-token-expiry: 604800
