@@ -21,4 +21,7 @@ public class LoginDTO {
     @NotBlank(message = "密码不能为空")
     @Length(min = 6, max = 20, message = "密码长度必须在6-20个字符之间")
     private String password;
+    
+    @Schema(description = "用户角色", example = "USER 或 ADMIN")
+    private String role;
 }

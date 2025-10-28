@@ -4,16 +4,16 @@ import com.xitian.djrlpwst.bean.PageBean;
 import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.ResultBean;
 import com.xitian.djrlpwst.bean.base.BaseController;
+import com.xitian.djrlpwst.converter.AttractionConverter;
 import com.xitian.djrlpwst.domain.entity.Attraction;
 import com.xitian.djrlpwst.domain.query.AttractionQuery;
+import com.xitian.djrlpwst.domain.vo.AttractionListVO;
 import com.xitian.djrlpwst.domain.vo.AttractionVO;
 import com.xitian.djrlpwst.service.AttractionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/attractions")
@@ -23,45 +23,42 @@ public class AttractionController extends BaseController<Attraction> {
     @Autowired
     private AttractionService attractionService;
     
+    @Autowired
+    private AttractionConverter attractionConverter;
+    
     @PostMapping("/page")
     @Operation(summary = "分页查询景点")
-    public ResultBean<PageBean<AttractionVO>> page(@RequestBody PageParam<AttractionQuery> param) {
-        // TODO: 实现分页查询逻辑
-        return ResultBean.success();
+    public ResultBean<PageBean<AttractionListVO>> page(@RequestBody PageParam<AttractionQuery> param) {
+        PageBean<AttractionListVO> page = attractionService.getPage(param);
+        return ResultBean.success(page);
     }
     
     @GetMapping("/{id}")
     @Operation(summary = "根据ID查询景点")
     public ResultBean<AttractionVO> getById(@PathVariable Long id) {
-        // TODO: 实现根据ID查询逻辑
-        return ResultBean.success();
+        Attraction attraction = attractionService.getById(id);
+        AttractionVO vo = attractionConverter.toVO(attraction);
+        return ResultBean.success(vo);
     }
     
     @PostMapping
     @Operation(summary = "新增景点")
     public ResultBean<Void> add(@RequestBody Attraction entity) {
-        // TODO: 实现新增逻辑
+        attractionService.save(entity);
         return ResultBean.success();
     }
     
     @PutMapping
     @Operation(summary = "修改景点")
     public ResultBean<Void> update(@RequestBody Attraction entity) {
-        // TODO: 实现修改逻辑
+        attractionService.updateById(entity);
         return ResultBean.success();
     }
     
     @DeleteMapping("/{id}")
     @Operation(summary = "删除景点")
     public ResultBean<Void> delete(@PathVariable Long id) {
-        // TODO: 实现删除逻辑
-        return ResultBean.success();
-    }
-    
-    @PostMapping("/list")
-    @Operation(summary = "列表查询景点")
-    public ResultBean<List<AttractionVO>> list(@RequestBody AttractionQuery query) {
-        // TODO: 实现列表查询逻辑
+        attractionService.removeById(id);
         return ResultBean.success();
     }
 }

@@ -46,6 +46,24 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
     }
     
     @Override
+    public User findByEmailOrPhoneAndRole(String emailOrPhone, Integer role) {
+        // 根据邮箱或手机号和角色查找用户
+        if (emailOrPhone.contains("@")) {
+            return userMapper.selectOne(
+                com.baomidou.mybatisplus.core.toolkit.Wrappers.<User>lambdaQuery()
+                    .eq(User::getEmail, emailOrPhone)
+                    .eq(User::getRole, role)
+            );
+        } else {
+            return userMapper.selectOne(
+                com.baomidou.mybatisplus.core.toolkit.Wrappers.<User>lambdaQuery()
+                    .eq(User::getPhone, emailOrPhone)
+                    .eq(User::getRole, role)
+            );
+        }
+    }
+    
+    @Override
     public LoginResult login(String emailOrPhone, String password) {
         User user;
         // 判断是邮箱还是手机号
@@ -73,7 +91,29 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
         }
     }
     
-        @Override
+    @Override
+    public LoginResult login(String emailOrPhone, String password, Integer role) {
+        User user = findByEmailOrPhoneAndRole(emailOrPhone, role);
+        
+        // 检查用户是否存在
+        if (user == null) {
+            return LoginResult.USER_NOT_EXISTS;
+        }
+        
+        // 检查用户状态（假设1为启用，0为禁用）
+        if (user.getStatus() == null || user.getStatus() != 1) {
+            return LoginResult.USER_DISABLED;
+        }
+        
+        // 验证密码
+        if (passwordEncoder.matches(password, user.getPasswordHash())) {
+            return LoginResult.SUCCESS;
+        } else {
+            return LoginResult.PASSWORD_ERROR;
+        }
+    }
+    
+    @Override
     public boolean register(User user) {
         // 检查用户是否已存在
         if (findByUsername(user.getUsername()) != null || 

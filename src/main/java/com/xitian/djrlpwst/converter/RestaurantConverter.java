@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.converter;
 
 import com.xitian.djrlpwst.domain.entity.Restaurant;
+import com.xitian.djrlpwst.domain.vo.RestaurantListVO;
 import com.xitian.djrlpwst.domain.vo.RestaurantVO;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +43,35 @@ public class RestaurantConverter {
         List<RestaurantVO> voList = new ArrayList<>();
         for (Restaurant entity : entityList) {
             voList.add(toVO(entity));
+        }
+        
+        return voList;
+    }
+    
+    public RestaurantListVO toListVO(Restaurant entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        RestaurantListVO vo = new RestaurantListVO();
+        vo.setId(entity.getId());
+        vo.setName(entity.getName());
+        vo.setCoverImage(entity.getCoverImage());
+        vo.setOpenHours(entity.getOpenHours());
+        vo.setPriceRange(entity.getPriceRange());
+        vo.setContactPhone(entity.getContactPhone());
+        
+        return vo;
+    }
+    
+    public List<RestaurantListVO> toListVOList(List<Restaurant> entityList) {
+        if (entityList == null) {
+            return null;
+        }
+        
+        List<RestaurantListVO> voList = new ArrayList<>();
+        for (Restaurant entity : entityList) {
+            voList.add(toListVO(entity));
         }
         
         return voList;

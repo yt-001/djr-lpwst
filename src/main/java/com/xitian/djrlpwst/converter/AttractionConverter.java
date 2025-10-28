@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.converter;
 
 import com.xitian.djrlpwst.domain.entity.Attraction;
+import com.xitian.djrlpwst.domain.vo.AttractionListVO;
 import com.xitian.djrlpwst.domain.vo.AttractionVO;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,24 @@ public class AttractionConverter {
         return vo;
     }
     
+    public AttractionListVO toListVO(Attraction entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        AttractionListVO vo = new AttractionListVO();
+        vo.setId(entity.getId());
+        vo.setCreateTime(entity.getCreateTime());
+        vo.setUpdateTime(entity.getUpdateTime());
+        vo.setName(entity.getName());
+        vo.setDescription(entity.getDescription());
+        vo.setCoverImage(entity.getCoverImage());
+        vo.setOpenHours(entity.getOpenHours());
+        vo.setTicketPrice(entity.getTicketPrice());
+        
+        return vo;
+    }
+    
     public List<AttractionVO> toVOList(List<Attraction> entityList) {
         if (entityList == null) {
             return null;
@@ -41,6 +60,19 @@ public class AttractionConverter {
         List<AttractionVO> voList = new ArrayList<>();
         for (Attraction entity : entityList) {
             voList.add(toVO(entity));
+        }
+        
+        return voList;
+    }
+    
+    public List<AttractionListVO> toListVOList(List<Attraction> entityList) {
+        if (entityList == null) {
+            return null;
+        }
+        
+        List<AttractionListVO> voList = new ArrayList<>();
+        for (Attraction entity : entityList) {
+            voList.add(toListVO(entity));
         }
         
         return voList;

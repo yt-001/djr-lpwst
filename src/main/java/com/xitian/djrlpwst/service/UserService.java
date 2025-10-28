@@ -31,12 +31,29 @@ public interface UserService extends BaseService<User> {
     User findByPhone(String phone);
     
     /**
+     * 根据邮箱或手机号和角色查找用户
+     * @param emailOrPhone 邮箱或手机号
+     * @param role 角色
+     * @return 用户实体
+     */
+    User findByEmailOrPhoneAndRole(String emailOrPhone, Integer role);
+    
+    /**
      * 用户登录
      * @param emailOrPhone 邮箱或手机号
      * @param password 密码
      * @return 登录结果
      */
     LoginResult login(String emailOrPhone, String password);
+    
+    /**
+     * 用户登录（带角色）
+     * @param emailOrPhone 邮箱或手机号
+     * @param password 密码
+     * @param role 角色
+     * @return 登录结果
+     */
+    LoginResult login(String emailOrPhone, String password, Integer role);
     
     /**
      * 用户注册

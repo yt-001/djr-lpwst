@@ -6,6 +6,7 @@ import com.xitian.djrlpwst.bean.ResultBean;
 import com.xitian.djrlpwst.bean.base.BaseController;
 import com.xitian.djrlpwst.domain.entity.Restaurant;
 import com.xitian.djrlpwst.domain.query.RestaurantQuery;
+import com.xitian.djrlpwst.domain.vo.RestaurantListVO;
 import com.xitian.djrlpwst.domain.vo.RestaurantVO;
 import com.xitian.djrlpwst.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,38 +24,42 @@ public class RestaurantController extends BaseController<Restaurant> {
     @Autowired
     private RestaurantService restaurantService;
     
+    @Autowired
+    private com.xitian.djrlpwst.converter.RestaurantConverter restaurantConverter;
+    
     @PostMapping("/page")
     @Operation(summary = "分页查询美食")
-    public ResultBean<PageBean<RestaurantVO>> page(@RequestBody PageParam<RestaurantQuery> param) {
-        // TODO: 实现分页查询逻辑
-        return ResultBean.success();
+    public ResultBean<PageBean<RestaurantListVO>> page(@RequestBody PageParam<RestaurantQuery> param) {
+        PageBean<RestaurantListVO> page = restaurantService.getPage(param);
+        return ResultBean.success(page);
     }
     
     @GetMapping("/{id}")
     @Operation(summary = "根据ID查询美食")
     public ResultBean<RestaurantVO> getById(@PathVariable Long id) {
-        // TODO: 实现根据ID查询逻辑
-        return ResultBean.success();
+        Restaurant restaurant = restaurantService.getById(id);
+        RestaurantVO vo = restaurantConverter.toVO(restaurant);
+        return ResultBean.success(vo);
     }
     
     @PostMapping
     @Operation(summary = "新增美食")
     public ResultBean<Void> add(@RequestBody Restaurant entity) {
-        // TODO: 实现新增逻辑
+        restaurantService.save(entity);
         return ResultBean.success();
     }
     
     @PutMapping
     @Operation(summary = "修改美食")
     public ResultBean<Void> update(@RequestBody Restaurant entity) {
-        // TODO: 实现修改逻辑
+        restaurantService.updateById(entity);
         return ResultBean.success();
     }
     
     @DeleteMapping("/{id}")
     @Operation(summary = "删除美食")
     public ResultBean<Void> delete(@PathVariable Long id) {
-        // TODO: 实现删除逻辑
+        restaurantService.removeById(id);
         return ResultBean.success();
     }
     

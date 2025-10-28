@@ -43,8 +43,35 @@ public class AuthController {
         // 从loginDTO中获取邮箱或手机号和密码
         String emailOrPhone = loginDTO.getEmailOrPhone();
         String password = loginDTO.getPassword();
+        String roleStr = loginDTO.getRole();
         
-        // 验证用户邮箱或手机号和密码
+        // 获取用户信息
+        User user;
+        if (emailOrPhone.contains("@")) {
+            user = userService.findByEmail(emailOrPhone);
+        } else {
+            user = userService.findByPhone(emailOrPhone);
+        }
+        
+        // 检查用户是否存在
+        if (user == null) {
+            return ResultBean.fail(StatusCode.USER_NOT_FOUND, "用户不存在");
+        }
+        
+        // 如果提供了role参数，则验证用户角色是否匹配
+        if (roleStr != null && !roleStr.isEmpty()) {
+            try {
+                Integer role = Integer.valueOf(roleStr);
+                // 检查用户角色是否匹配
+                if (!role.equals(user.getRole())) {
+                    return ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "角色参数错误");
+                }
+            } catch (NumberFormatException e) {
+                return ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "角色参数无效");
+            }
+        }
+        
+        // 验证用户密码
         LoginResult loginResult = userService.login(emailOrPhone, password);
         if (loginResult != LoginResult.SUCCESS) {
             return switch (loginResult) {
@@ -53,14 +80,6 @@ public class AuthController {
                 case PASSWORD_ERROR -> ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "密码错误");
                 default -> ResultBean.fail(StatusCode.USERNAME_OR_PASSWORD_ERROR, "用户名或密码错误");
             };
-        }
-        
-        // 获取用户信息
-        User user;
-        if (emailOrPhone.contains("@")) {
-            user = userService.findByEmail(emailOrPhone);
-        } else {
-            user = userService.findByPhone(emailOrPhone);
         }
         
         // 生成访问令牌和刷新令牌
@@ -113,7 +132,7 @@ public class AuthController {
         refreshCookie.setMaxAge(0); // 立即过期
         response.addCookie(refreshCookie);
         
-        return ResultBean.success((UserVO) null);
+        return ResultBean.success(null);
     }
 
     @PostMapping("/refresh")
