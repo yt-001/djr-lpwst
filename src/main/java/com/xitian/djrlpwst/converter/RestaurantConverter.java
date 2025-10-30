@@ -31,6 +31,7 @@ public class RestaurantConverter {
         vo.setPriceRange(entity.getPriceRange());
         vo.setSpecialty(entity.getSpecialty());
         vo.setContactPhone(entity.getContactPhone());
+        vo.setRating(entity.getRating());
         
         return vo;
     }
@@ -60,6 +61,7 @@ public class RestaurantConverter {
         vo.setOpenHours(entity.getOpenHours());
         vo.setPriceRange(entity.getPriceRange());
         vo.setContactPhone(entity.getContactPhone());
+        vo.setRating(entity.getRating());
         
         return vo;
     }

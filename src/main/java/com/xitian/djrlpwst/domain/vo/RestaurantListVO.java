@@ -24,4 +24,7 @@ public class RestaurantListVO {
     
     @Schema(description = "联系电话")
     private String contactPhone;
+    
+    @Schema(description = "推荐指数(0-5)")
+    private java.math.BigDecimal rating;
 }

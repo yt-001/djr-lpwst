@@ -74,6 +74,7 @@ create table restaurants
     price_range   varchar(50)                        null comment '价格区间(如:￥50-100)',
     specialty     varchar(100)                       null comment '招牌菜',
     contact_phone varchar(20)                        null comment '联系电话',
+    rating        decimal(2, 1)                      null comment '推荐指数(0-5)',
     create_time   datetime default CURRENT_TIMESTAMP null comment '创建时间',
     update_time   datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间'
 )
@@ -81,6 +82,9 @@ create table restaurants
 
 create index idx_restaurants_location
     on restaurants (location);
+
+create index idx_restaurants_rating
+    on restaurants (rating);
 
 create table users
 (
