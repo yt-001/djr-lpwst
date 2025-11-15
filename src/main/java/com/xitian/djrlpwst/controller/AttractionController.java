@@ -5,13 +5,18 @@ import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.ResultBean;
 import com.xitian.djrlpwst.bean.base.BaseController;
 import com.xitian.djrlpwst.converter.AttractionConverter;
+import com.xitian.djrlpwst.domain.dto.AttractionCreateDTO;
+import com.xitian.djrlpwst.domain.dto.AttractionUpdateDTO;
 import com.xitian.djrlpwst.domain.entity.Attraction;
 import com.xitian.djrlpwst.domain.query.AttractionQuery;
 import com.xitian.djrlpwst.domain.vo.AttractionListVO;
 import com.xitian.djrlpwst.domain.vo.AttractionVO;
+import com.xitian.djrlpwst.domain.vo.AttractionDetailVO;
 import com.xitian.djrlpwst.service.AttractionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +33,15 @@ public class AttractionController extends BaseController<Attraction> {
     
     @PostMapping("/page")
     @Operation(summary = "分页查询景点")
-    public ResultBean<PageBean<AttractionListVO>> page(@RequestBody PageParam<AttractionQuery> param) {
+    public ResultBean<PageBean<AttractionListVO>> page(@Valid @RequestBody PageParam<AttractionQuery> param) {
         PageBean<AttractionListVO> page = attractionService.getPage(param);
+        return ResultBean.success(page);
+    }
+    
+    @PostMapping("/admin/page")
+    @Operation(summary = "管理员端分页查询景点详情")
+    public ResultBean<PageBean<AttractionDetailVO>> adminPage(@Valid @RequestBody PageParam<AttractionQuery> param) {
+        PageBean<AttractionDetailVO> page = attractionService.getAdminPage(param);
         return ResultBean.success(page);
     }
     
@@ -43,15 +55,56 @@ public class AttractionController extends BaseController<Attraction> {
     
     @PostMapping
     @Operation(summary = "新增景点")
-    public ResultBean<Void> add(@RequestBody Attraction entity) {
+    public ResultBean<Void> add(@Valid @RequestBody AttractionCreateDTO createDTO) {
+        Attraction entity = new Attraction();
+        BeanUtils.copyProperties(createDTO, entity);
         attractionService.save(entity);
         return ResultBean.success();
     }
     
     @PutMapping
     @Operation(summary = "修改景点")
-    public ResultBean<Void> update(@RequestBody Attraction entity) {
-        attractionService.updateById(entity);
+    public ResultBean<Void> update(@Valid @RequestBody AttractionUpdateDTO updateDTO) {
+        // 获取原始景点信息
+        Attraction existingAttraction = attractionService.getById(updateDTO.getId());
+        if (existingAttraction == null) {
+            return ResultBean.fail(com.xitian.djrlpwst.bean.StatusCode.DATA_NOT_FOUND, "景点不存在");
+        }
+        
+        // 只更新提供了的字段
+        if (updateDTO.getName() != null) {
+            existingAttraction.setName(updateDTO.getName());
+        }
+        if (updateDTO.getDescription() != null) {
+            existingAttraction.setDescription(updateDTO.getDescription());
+        }
+        if (updateDTO.getLocation() != null) {
+            existingAttraction.setLocation(updateDTO.getLocation());
+        }
+        if (updateDTO.getLatitude() != null) {
+            existingAttraction.setLatitude(updateDTO.getLatitude());
+        }
+        if (updateDTO.getLongitude() != null) {
+            existingAttraction.setLongitude(updateDTO.getLongitude());
+        }
+        if (updateDTO.getCoverImage() != null) {
+            existingAttraction.setCoverImage(updateDTO.getCoverImage());
+        }
+        if (updateDTO.getImages() != null) {
+            existingAttraction.setImages(updateDTO.getImages());
+        }
+        if (updateDTO.getOpenHours() != null) {
+            existingAttraction.setOpenHours(updateDTO.getOpenHours());
+        }
+        if (updateDTO.getTicketPrice() != null) {
+            existingAttraction.setTicketPrice(updateDTO.getTicketPrice());
+        }
+        if (updateDTO.getContactPhone() != null) {
+            existingAttraction.setContactPhone(updateDTO.getContactPhone());
+        }
+        
+        // 更新景点信息
+        attractionService.updateById(existingAttraction);
         return ResultBean.success();
     }
     

@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.config;
 
 import com.xitian.djrlpwst.config.JwtAuthenticationFilter;
+import com.xitian.djrlpwst.config.PermissionCheckFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,26 +31,25 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     
+    @Autowired
+    private PermissionCheckFilter permissionCheckFilter;
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/test-data").permitAll()
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/users/**").permitAll()
-                .requestMatchers("/attractions/**").permitAll()
-                .requestMatchers("/accommodations/**").permitAll()
-                .requestMatchers("/restaurants/**").permitAll()
-                .requestMatchers("/intangible-cultures/**").permitAll()
-                .requestMatchers("/comments/**").permitAll()
-                .requestMatchers("/favorites/**").permitAll()
-                .requestMatchers("/bookings/**").permitAll()
+                // 公开接口
+                .requestMatchers("/auth/login", "/auth/refresh", "/test-data").permitAll()
+                // 管理员接口
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                // 用户接口
                 .requestMatchers("/user/**").hasRole("USER")
-                .anyRequest().permitAll())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // 其他所有请求都需要认证
+                .anyRequest().authenticated())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(permissionCheckFilter, JwtAuthenticationFilter.class);
         
         return http.build();
     }

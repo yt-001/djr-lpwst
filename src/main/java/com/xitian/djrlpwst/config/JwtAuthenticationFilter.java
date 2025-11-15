@@ -1,5 +1,6 @@
 package com.xitian.djrlpwst.config;
 
+import com.xitian.djrlpwst.domain.enums.UserRole;
 import com.xitian.djrlpwst.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -41,22 +42,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 // 验证刷新令牌有效性
                 Claims claims = jwtUtil.extractAllClaims(refreshToken);
-                String username = claims.getSubject();
+                String emailOrPhone = (String) claims.get("emailOrPhone");
                 Integer role = (Integer) claims.get("role");
                 
-                if (username != null && !jwtUtil.isTokenExpired(refreshToken)) {
+                if (emailOrPhone != null && !jwtUtil.isTokenExpired(refreshToken)) {
                     // 构建权限列表
                     List<GrantedAuthority> authorities = new ArrayList<>();
                     if (role != null) {
-                        if (role == 0) { // 管理员
+                        UserRole userRole = UserRole.fromCode(role);
+                        if (userRole == UserRole.ADMIN) { // 管理员
                             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                        } else if (role == 1) { // 普通用户
+                        } else if (userRole == UserRole.USER) { // 普通用户
                             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
                         }
                     }
                     
                     UsernamePasswordAuthenticationToken authToken = 
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+                        new UsernamePasswordAuthenticationToken(emailOrPhone, null, authorities);
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
