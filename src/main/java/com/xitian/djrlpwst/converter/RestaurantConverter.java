@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.converter;
 
 import com.xitian.djrlpwst.domain.entity.Restaurant;
+import com.xitian.djrlpwst.domain.vo.RestaurantAdminVO;
 import com.xitian.djrlpwst.domain.vo.RestaurantListVO;
 import com.xitian.djrlpwst.domain.vo.RestaurantVO;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,27 @@ public class RestaurantConverter {
         return vo;
     }
     
+    public RestaurantAdminVO toAdminVO(Restaurant entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        RestaurantAdminVO vo = new RestaurantAdminVO();
+        vo.setId(entity.getId());
+        vo.setCreateTime(entity.getCreateTime());
+        vo.setUpdateTime(entity.getUpdateTime());
+        vo.setName(entity.getName());
+        vo.setDescription(entity.getDescription());
+        vo.setLocation(entity.getLocation());
+        vo.setOpenHours(entity.getOpenHours());
+        vo.setPriceRange(entity.getPriceRange());
+        vo.setSpecialty(entity.getSpecialty());
+        vo.setContactPhone(entity.getContactPhone());
+        vo.setRating(entity.getRating());
+        
+        return vo;
+    }
+    
     public List<RestaurantVO> toVOList(List<Restaurant> entityList) {
         if (entityList == null) {
             return null;
@@ -44,6 +66,19 @@ public class RestaurantConverter {
         List<RestaurantVO> voList = new ArrayList<>();
         for (Restaurant entity : entityList) {
             voList.add(toVO(entity));
+        }
+        
+        return voList;
+    }
+    
+    public List<RestaurantAdminVO> toAdminVOList(List<Restaurant> entityList) {
+        if (entityList == null) {
+            return null;
+        }
+        
+        List<RestaurantAdminVO> voList = new ArrayList<>();
+        for (Restaurant entity : entityList) {
+            voList.add(toAdminVO(entity));
         }
         
         return voList;
