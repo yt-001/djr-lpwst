@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.converter;
 
 import com.xitian.djrlpwst.domain.entity.Accommodation;
+import com.xitian.djrlpwst.domain.vo.AccommodationAdminVO;
 import com.xitian.djrlpwst.domain.vo.AccommodationVO;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +36,25 @@ public class AccommodationConverter {
         return vo;
     }
     
+    public AccommodationAdminVO toAdminVO(Accommodation entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        AccommodationAdminVO vo = new AccommodationAdminVO();
+        vo.setId(entity.getId());
+        vo.setCreateTime(entity.getCreateTime());
+        vo.setUpdateTime(entity.getUpdateTime());
+        vo.setName(entity.getName());
+        vo.setType(entity.getType());
+        vo.setLocation(entity.getLocation());
+        vo.setPricePerNight(entity.getPricePerNight());
+        vo.setCapacity(entity.getCapacity());
+        vo.setContactPhone(entity.getContactPhone());
+        
+        return vo;
+    }
+    
     public List<AccommodationVO> toVOList(List<Accommodation> entityList) {
         if (entityList == null) {
             return null;
@@ -43,6 +63,19 @@ public class AccommodationConverter {
         List<AccommodationVO> voList = new ArrayList<>();
         for (Accommodation entity : entityList) {
             voList.add(toVO(entity));
+        }
+        
+        return voList;
+    }
+    
+    public List<AccommodationAdminVO> toAdminVOList(List<Accommodation> entityList) {
+        if (entityList == null) {
+            return null;
+        }
+        
+        List<AccommodationAdminVO> voList = new ArrayList<>();
+        for (Accommodation entity : entityList) {
+            voList.add(toAdminVO(entity));
         }
         
         return voList;

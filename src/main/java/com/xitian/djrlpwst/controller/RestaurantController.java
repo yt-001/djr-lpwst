@@ -4,14 +4,18 @@ import com.xitian.djrlpwst.bean.PageBean;
 import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.ResultBean;
 import com.xitian.djrlpwst.bean.base.BaseController;
+import com.xitian.djrlpwst.domain.dto.RestaurantUpdateDTO;
 import com.xitian.djrlpwst.domain.entity.Restaurant;
 import com.xitian.djrlpwst.domain.query.RestaurantQuery;
 import com.xitian.djrlpwst.domain.vo.RestaurantListVO;
 import com.xitian.djrlpwst.domain.vo.RestaurantVO;
 import com.xitian.djrlpwst.domain.vo.RestaurantAdminVO;
 import com.xitian.djrlpwst.service.RestaurantService;
+import com.xitian.djrlpwst.util.BeanUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -61,8 +65,18 @@ public class RestaurantController extends BaseController<Restaurant> {
     
     @PutMapping
     @Operation(summary = "修改美食")
-    public ResultBean<Void> update(@RequestBody Restaurant entity) {
-        restaurantService.updateById(entity);
+    public ResultBean<Void> update(@Valid @RequestBody RestaurantUpdateDTO updateDTO) {
+        // 获取原始餐厅信息
+        Restaurant existingRestaurant = restaurantService.getById(updateDTO.getId());
+        if (existingRestaurant == null) {
+            return ResultBean.fail(com.xitian.djrlpwst.bean.StatusCode.DATA_NOT_FOUND, "餐厅不存在");
+        }
+        
+        // 只复制非空属性到现有实体
+        BeanUtil.copyNonNullProperties(updateDTO, existingRestaurant);
+        
+        // 更新餐厅信息
+        restaurantService.updateById(existingRestaurant);
         return ResultBean.success();
     }
     

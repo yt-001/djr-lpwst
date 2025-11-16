@@ -13,6 +13,7 @@ import com.xitian.djrlpwst.domain.vo.AttractionListVO;
 import com.xitian.djrlpwst.domain.vo.AttractionVO;
 import com.xitian.djrlpwst.domain.vo.AttractionDetailVO;
 import com.xitian.djrlpwst.service.AttractionService;
+import com.xitian.djrlpwst.util.BeanUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -71,37 +72,8 @@ public class AttractionController extends BaseController<Attraction> {
             return ResultBean.fail(com.xitian.djrlpwst.bean.StatusCode.DATA_NOT_FOUND, "景点不存在");
         }
         
-        // 只更新提供了的字段
-        if (updateDTO.getName() != null) {
-            existingAttraction.setName(updateDTO.getName());
-        }
-        if (updateDTO.getDescription() != null) {
-            existingAttraction.setDescription(updateDTO.getDescription());
-        }
-        if (updateDTO.getLocation() != null) {
-            existingAttraction.setLocation(updateDTO.getLocation());
-        }
-        if (updateDTO.getLatitude() != null) {
-            existingAttraction.setLatitude(updateDTO.getLatitude());
-        }
-        if (updateDTO.getLongitude() != null) {
-            existingAttraction.setLongitude(updateDTO.getLongitude());
-        }
-        if (updateDTO.getCoverImage() != null) {
-            existingAttraction.setCoverImage(updateDTO.getCoverImage());
-        }
-        if (updateDTO.getImages() != null) {
-            existingAttraction.setImages(updateDTO.getImages());
-        }
-        if (updateDTO.getOpenHours() != null) {
-            existingAttraction.setOpenHours(updateDTO.getOpenHours());
-        }
-        if (updateDTO.getTicketPrice() != null) {
-            existingAttraction.setTicketPrice(updateDTO.getTicketPrice());
-        }
-        if (updateDTO.getContactPhone() != null) {
-            existingAttraction.setContactPhone(updateDTO.getContactPhone());
-        }
+        // 只复制非空属性到现有实体
+        BeanUtil.copyNonNullProperties(updateDTO, existingAttraction);
         
         // 更新景点信息
         attractionService.updateById(existingAttraction);
