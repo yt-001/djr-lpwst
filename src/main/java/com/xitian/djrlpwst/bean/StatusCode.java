@@ -18,6 +18,7 @@ public enum StatusCode {
     BAD_GATEWAY(502, "网关错误"),
     SERVICE_UNAVAILABLE(503, "服务不可用"),
     GATEWAY_TIMEOUT(504, "网关超时"),
+    INTERNAL_ERROR(505, "内部错误"),
 
     // 业务相关错误
     VALIDATION_ERROR(1001, "参数验证失败"),

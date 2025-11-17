@@ -22,6 +22,11 @@ spring:
       min-evictable-idle-time-millis: 300000
       max-evictable-idle-time-millis: 900000
       validation-query: SELECT 1 FROM DUAL
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
   application:
     name: djr-lpwst
 
@@ -48,3 +53,7 @@ cookie:
   access-token-expiry: 18000
   # 刷新令牌Cookie过期时间（秒）默认7天
   refresh-token-expiry: 604800
+
+# 文件上传配置
+file:
+  upload-dir: F:/djr-img/

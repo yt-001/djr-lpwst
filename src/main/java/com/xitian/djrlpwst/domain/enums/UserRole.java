@@ -47,7 +47,10 @@ public enum UserRole {
             "/favorites/**",
             
             // 预订管理
-            "/bookings/**"
+            "/bookings/**",
+            
+            // 文件上传
+            "/files/upload-images"
     )),
     
     /**
@@ -87,7 +90,10 @@ public enum UserRole {
             "/favorites/**",
             
             // 预订相关
-            "/bookings/**"
+            "/bookings/**",
+            
+            // 文件上传
+            "/files/upload-images"
     )),
     
     /**
