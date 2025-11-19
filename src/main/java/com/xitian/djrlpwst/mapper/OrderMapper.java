@@ -1,10 +1,10 @@
 package com.xitian.djrlpwst.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.xitian.djrlpwst.domain.entity.Booking;
+import com.xitian.djrlpwst.domain.entity.Order;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface BookingMapper extends BaseMapper<Booking> {
+public interface OrderMapper extends BaseMapper<Order> {
     
 }

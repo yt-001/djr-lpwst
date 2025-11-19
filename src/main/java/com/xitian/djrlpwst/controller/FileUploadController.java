@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.controller;
 
 import com.xitian.djrlpwst.bean.ResultBean;
+import com.xitian.djrlpwst.bean.StatusCode;
 import com.xitian.djrlpwst.config.FileUploadConfig;
 import com.xitian.djrlpwst.util.FileUploadUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +55,7 @@ public class FileUploadController {
             }
             return ResultBean.success(filenames);
         } catch (IOException e) {
-            return ResultBean.fail(com.xitian.djrlpwst.bean.StatusCode.INTERNAL_ERROR, "文件上传失败：" + e.getMessage());
+            return ResultBean.fail(StatusCode.INTERNAL_ERROR, "文件上传失败：" + e.getMessage());
         }
     }
 }

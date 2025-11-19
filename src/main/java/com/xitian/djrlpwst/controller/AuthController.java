@@ -200,7 +200,7 @@ public class AuthController {
         String accessToken = extractAccessTokenFromCookie(request);
         
         if (accessToken == null) {
-            return ResultBean.fail(com.xitian.djrlpwst.bean.StatusCode.INVALID_TOKEN, "未找到访问令牌");
+            return ResultBean.fail(StatusCode.INVALID_TOKEN, "未找到访问令牌");
         }
         
         try {

@@ -3,6 +3,7 @@ package com.xitian.djrlpwst.controller;
 import com.xitian.djrlpwst.bean.PageBean;
 import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.ResultBean;
+import com.xitian.djrlpwst.bean.StatusCode;
 import com.xitian.djrlpwst.bean.base.BaseController;
 import com.xitian.djrlpwst.domain.dto.RestaurantUpdateDTO;
 import com.xitian.djrlpwst.domain.entity.Restaurant;
@@ -69,7 +70,7 @@ public class RestaurantController extends BaseController<Restaurant> {
         // 获取原始餐厅信息
         Restaurant existingRestaurant = restaurantService.getById(updateDTO.getId());
         if (existingRestaurant == null) {
-            return ResultBean.fail(com.xitian.djrlpwst.bean.StatusCode.DATA_NOT_FOUND, "餐厅不存在");
+            return ResultBean.fail(StatusCode.DATA_NOT_FOUND, "餐厅不存在");
         }
         
         // 只复制非空属性到现有实体

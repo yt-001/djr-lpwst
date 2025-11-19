@@ -49,6 +49,9 @@ public enum UserRole {
             // 预订管理
             "/bookings/**",
             
+            // 订单管理
+            "/orders/**",
+            
             // 文件上传
             "/files/upload-images"
     )),
@@ -91,6 +94,9 @@ public enum UserRole {
             
             // 预订相关
             "/bookings/**",
+            
+            // 订单相关
+            "/orders/**",
             
             // 文件上传
             "/files/upload-images"
