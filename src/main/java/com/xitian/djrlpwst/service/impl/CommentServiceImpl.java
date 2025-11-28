@@ -55,6 +55,11 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment> implements Comm
             if (query.getIsApproved() != null) {
                 wrapper.eq(Comment::getIsApproved, query.getIsApproved());
             }
+            
+            // 添加景点ID查询条件
+            if (query.getAttractionId() != null) {
+                wrapper.eq(Comment::getAttractionId, query.getAttractionId());
+            }
         }
         
         // 按创建时间倒序排列

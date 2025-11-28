@@ -17,4 +17,7 @@ public class CommentQuery extends BaseQuery {
     
     @Schema(description = "是否审核通过")
     private Integer isApproved;
+    
+    @Schema(description = "景点ID")
+    private Long attractionId;
 }

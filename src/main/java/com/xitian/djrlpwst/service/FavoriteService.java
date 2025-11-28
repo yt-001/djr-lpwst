@@ -21,11 +21,10 @@ public interface FavoriteService extends BaseService<Favorite> {
     
     /**
      * 获取用户收藏的景点列表（分页）
-     * @param param 分页参数
-     * @param query 查询条件
+     * @param param 查询参数
      * @return 分页数据
      */
-    PageBean<AttractionFavoriteVO> getAttractionFavorites(Page<Favorite> param, FavoriteQuery query);
+    PageBean<AttractionFavoriteVO> getAttractionFavorites(Page<Favorite> param);
     
     /**
      * 添加景点收藏

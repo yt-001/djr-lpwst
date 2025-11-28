@@ -8,7 +8,6 @@ import com.xitian.djrlpwst.bean.base.service.BaseServiceImpl;
 import com.xitian.djrlpwst.converter.AttractionFavoriteConverter;
 import com.xitian.djrlpwst.domain.entity.Attraction;
 import com.xitian.djrlpwst.domain.entity.Favorite;
-import com.xitian.djrlpwst.domain.query.FavoriteQuery;
 import com.xitian.djrlpwst.domain.vo.AttractionFavoriteVO;
 import com.xitian.djrlpwst.mapper.AttractionMapper;
 import com.xitian.djrlpwst.mapper.FavoriteMapper;
@@ -41,18 +40,10 @@ public class FavoriteServiceImpl extends BaseServiceImpl<Favorite> implements Fa
     }
     
     @Override
-    public PageBean<AttractionFavoriteVO> getAttractionFavorites(Page<Favorite> param, FavoriteQuery query) {
-        // 构建查询条件
-        LambdaQueryWrapper<Favorite> wrapper = Wrappers.lambdaQuery();
-        wrapper.isNotNull(Favorite::getAttractionId); // 只查询景点收藏
-        
-        // 添加用户ID查询条件
-        if (query != null && query.getUserId() != null) {
-            wrapper.eq(Favorite::getUserId, query.getUserId());
-        }
-        
+    public PageBean<AttractionFavoriteVO> getAttractionFavorites(Page<Favorite> param) {
         // 查询收藏记录
-        Page<Favorite> favoritePage = favoriteMapper.selectPage(param, wrapper);
+        Page<Favorite> favoritePage = favoriteMapper.selectPage(param, 
+            Wrappers.<Favorite>lambdaQuery().isNotNull(Favorite::getAttractionId));
         
         // 获取景点ID列表
         List<Long> attractionIds = favoritePage.getRecords().stream()

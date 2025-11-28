@@ -42,7 +42,7 @@ public class FavoriteController extends BaseController<Favorite> {
         Page<Favorite> page = new Page<>(param.getPageNum(), param.getPageSize());
         
         // 获取分页数据
-        PageBean<AttractionFavoriteVO> pageBean = favoriteService.getAttractionFavorites(page, param.getQuery());
+        PageBean<AttractionFavoriteVO> pageBean = favoriteService.getAttractionFavorites(page);
         
         return ResultBean.success(pageBean);
     }
