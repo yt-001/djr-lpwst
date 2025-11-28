@@ -34,6 +34,19 @@ public class OrderController extends BaseController<Order> {
     @PostMapping("/page")
     @Operation(summary = "分页查询订单")
     public ResultBean<PageBean<OrderVO>> page(@RequestBody PageParam<OrderQuery> param) {
+        // 如果查询对象为空，则创建一个新的
+        if (param.getQuery() == null) {
+            param.setQuery(new OrderQuery());
+        }
+        
+        // 获取前端传入的用户ID
+        Long userId = param.getQuery().getUserId();
+        
+        // 确保用户ID存在且有效
+        if (userId == null || userId <= 0) {
+            return ResultBean.fail(StatusCode.VALIDATION_ERROR, "用户ID不能为空");
+        }
+        
         PageBean<OrderVO> page = orderService.getPage(param);
         return ResultBean.success(page);
     }
@@ -48,6 +61,19 @@ public class OrderController extends BaseController<Order> {
     @PostMapping("/expired-paid")
     @Operation(summary = "分页查询已支付但已过期的订单")
     public ResultBean<PageBean<OrderVO>> expiredPaidOrders(@RequestBody PageParam<OrderQuery> param) {
+        // 如果查询对象为空，则创建一个新的
+        if (param.getQuery() == null) {
+            param.setQuery(new OrderQuery());
+        }
+        
+        // 获取前端传入的用户ID
+        Long userId = param.getQuery().getUserId();
+        
+        // 确保用户ID存在且有效
+        if (userId == null || userId <= 0) {
+            return ResultBean.fail(StatusCode.VALIDATION_ERROR, "用户ID不能为空");
+        }
+        
         PageBean<OrderVO> page = orderService.getExpiredPaidOrders(param);
         return ResultBean.success(page);
     }
@@ -55,6 +81,19 @@ public class OrderController extends BaseController<Order> {
     @PostMapping("/pending-valid")
     @Operation(summary = "分页查询待使用且未过期的订单")
     public ResultBean<PageBean<OrderVO>> pendingValidOrders(@RequestBody PageParam<OrderQuery> param) {
+        // 如果查询对象为空，则创建一个新的
+        if (param.getQuery() == null) {
+            param.setQuery(new OrderQuery());
+        }
+        
+        // 获取前端传入的用户ID
+        Long userId = param.getQuery().getUserId();
+        
+        // 确保用户ID存在且有效
+        if (userId == null || userId <= 0) {
+            return ResultBean.fail(StatusCode.VALIDATION_ERROR, "用户ID不能为空");
+        }
+        
         PageBean<OrderVO> page = orderService.getPendingValidOrders(param);
         return ResultBean.success(page);
     }
@@ -83,8 +122,16 @@ public class OrderController extends BaseController<Order> {
         entity.setQuantity(createDTO.getQuantity());
         entity.setUnitPrice(createDTO.getUnitPrice());
         entity.setTotalAmount(createDTO.getTotalAmount());
-        entity.setStatus(0); // 默认状态为待支付
-        
+        // 使用前端传递的状态，如果未传递则默认为0（待支付）
+        int status = createDTO.getStatus() != null ? createDTO.getStatus() : 0;
+        entity.setStatus(status);
+        // 根据状态设置支付时间和过期时间
+        if (status == 1) { // 已支付状态
+            entity.setPaymentTime(java.time.LocalDateTime.now());
+            // 设置过期时间为30天后
+            entity.setExpireTime(java.time.LocalDateTime.now().plusDays(180));
+        }
+        // 如果是待支付状态(0)或其他状态，支付时间和过期时间保持为null
         orderService.save(entity);
         return ResultBean.success();
     }

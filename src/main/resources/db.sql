@@ -74,9 +74,9 @@ create table restaurants
     price_range   varchar(50)                        null comment '价格区间(如:￥50-100)',
     specialty     varchar(100)                       null comment '招牌菜',
     contact_phone varchar(20)                        null comment '联系电话',
-    rating        decimal(2, 1)                      null comment '推荐指数(0-5)',
     create_time   datetime default CURRENT_TIMESTAMP null comment '创建时间',
-    update_time   datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间'
+    update_time   datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    rating        decimal(2, 1)                      null comment '推荐指数(0-5)'
 )
     comment '美食表' collate = utf8mb4_unicode_ci;
 
@@ -90,59 +90,21 @@ create table users
 (
     id            int auto_increment comment '用户ID'
         primary key,
-    username      varchar(50)                        not null comment '用户名',
-    password_hash varchar(255)                       not null comment '密码',
-    email         varchar(100)                       not null comment '邮箱',
-    phone         varchar(20)                        null comment '手机号',
-    avatar_url    varchar(255)                       null comment '头像URL',
-    role          tinyint(1) default 1               not null comment '角色(0-管理员,1-普通用户)',
-    create_time   datetime default CURRENT_TIMESTAMP null comment '创建时间',
-    update_time   datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    username      varchar(50)                          not null comment '用户名',
+    password_hash varchar(255)                         not null comment '密码',
+    email         varchar(100)                         not null comment '邮箱',
+    phone         varchar(20)                          null comment '手机号',
+    avatar_url    varchar(255)                         null comment '头像URL',
+    status        tinyint(1) default 1                 not null comment '状态(0-禁用,1-启用)',
+    create_time   datetime   default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time   datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    role          tinyint(1) default 1                 not null comment '角色(0-管理员,1-普通用户)',
     constraint email
         unique (email),
     constraint username
         unique (username)
 )
     comment '用户表' collate = utf8mb4_unicode_ci;
-
-create index idx_users_role
-    on users (role);
-
-create table bookings
-(
-    id               int auto_increment comment '预订ID'
-        primary key,
-    user_id          int                                  not null comment '用户ID',
-    accommodation_id int                                  not null comment '住宿ID',
-    attraction_id    int                                  null comment '景点ID(可选)',
-    check_in_date    date                                 null comment '入住日期',
-    check_out_date   date                                 null comment '退房日期',
-    guest_count      int        default 1                 null comment '客人数量',
-    total_price      decimal(10, 2)                       null comment '总价格',
-    status           tinyint(1) default 0                 null comment '状态(0-待确认,1-已确认,2-已取消,3-已完成)',
-    special_requests text                                 null comment '特殊要求',
-    create_time      datetime   default CURRENT_TIMESTAMP null comment '创建时间',
-    update_time      datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
-    constraint bookings_ibfk_1
-        foreign key (user_id) references users (id),
-    constraint bookings_ibfk_2
-        foreign key (accommodation_id) references accommodations (id),
-    constraint bookings_ibfk_3
-        foreign key (attraction_id) references attractions (id)
-)
-    comment '预订表' collate = utf8mb4_unicode_ci;
-
-create index accommodation_id
-    on bookings (accommodation_id);
-
-create index attraction_id
-    on bookings (attraction_id);
-
-create index idx_bookings_status
-    on bookings (status);
-
-create index idx_bookings_user_id
-    on bookings (user_id);
 
 create table comments
 (
@@ -229,43 +191,49 @@ create index idx_favorites_user_id
 create index restaurant_id
     on favorites (restaurant_id);
 
-create table log
+create table orders
 (
-    id          int auto_increment comment '日志ID'
+    id           int auto_increment comment '订单ID'
         primary key,
-    user_id     int                                  null comment '用户ID',
-    account     varchar(100)                         null comment '账号',
-    ip          varchar(45)                          not null comment 'IP地址',
-    url         varchar(255)                         not null comment '请求URL',
-    method      varchar(10)                          not null comment 'HTTP方法',
-    params      text                                 null comment '请求参数',
-    duration    int        default 0                 not null comment '耗时(毫秒)',
-    result      text                                 null comment '返回结果',
-    info        varchar(500)                         null comment '附加信息',
-    deleted     tinyint(1) default 0                 null comment '是否删除(0-否,1-是)',
-    state       tinyint(1) default 1                 null comment '状态',
-    create_time datetime   default CURRENT_TIMESTAMP null comment '创建时间',
-    update_time datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
-    constraint log_ibfk_1
+    order_no     varchar(32)                          not null comment '订单编号',
+    user_id      int                                  not null comment '用户ID',
+    product_type tinyint(1)                           not null comment '产品类型(1-景点门票,2-美食消费券,3-住宿消费券)',
+    product_id   int                                  not null comment '产品ID(根据product_type关联不同表)',
+    product_name varchar(100)                         not null comment '产品名称',
+    description  varchar(500)                         null comment '消费描述(如:住宿套餐类型/美食具体菜品等)',
+    quantity     int        default 1                 not null comment '数量',
+    unit_price   decimal(10, 2)                       not null comment '单价',
+    total_amount decimal(10, 2)                       not null comment '总金额',
+    status       tinyint(1) default 0                 not null comment '订单状态(0-待支付,1-已支付,2-已使用,3-已取消,4-已退款)',
+    payment_time datetime                             null comment '支付时间',
+    used_time    datetime                             null comment '使用时间',
+    expire_time  datetime                             null comment '过期时间',
+    create_time  datetime   default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time  datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint idx_orders_order_no
+        unique (order_no),
+    constraint orders_ibfk_1
         foreign key (user_id) references users (id)
-            on delete set null
 )
-    comment '系统日志表' collate = utf8mb4_unicode_ci;
+    comment '订单表' collate = utf8mb4_unicode_ci;
 
-create index idx_log_create_time
-    on log (create_time);
+create index idx_orders_create_time
+    on orders (create_time);
 
-create index idx_log_ip
-    on log (ip);
+create index idx_orders_product
+    on orders (product_type, product_id);
 
-create index idx_log_url
-    on log (url);
+create index idx_orders_status
+    on orders (status);
 
-create index idx_log_user_id
-    on log (user_id);
+create index idx_orders_user_id
+    on orders (user_id);
 
 create index idx_users_email
     on users (email);
+
+create index idx_users_role
+    on users (role);
 
 create index idx_users_username
     on users (username);

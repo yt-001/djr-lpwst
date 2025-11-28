@@ -1,13 +1,18 @@
 package com.xitian.djrlpwst.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xitian.djrlpwst.bean.PageBean;
 import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.ResultBean;
+import com.xitian.djrlpwst.bean.StatusCode;
 import com.xitian.djrlpwst.bean.base.BaseController;
+import com.xitian.djrlpwst.domain.dto.AttractionFavoriteDTO;
 import com.xitian.djrlpwst.domain.entity.Favorite;
 import com.xitian.djrlpwst.domain.query.FavoriteQuery;
+import com.xitian.djrlpwst.domain.vo.AttractionFavoriteVO;
 import com.xitian.djrlpwst.domain.vo.FavoriteVO;
 import com.xitian.djrlpwst.service.FavoriteService;
+import com.xitian.djrlpwst.util.BeanUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +33,47 @@ public class FavoriteController extends BaseController<Favorite> {
     public ResultBean<PageBean<FavoriteVO>> page(@RequestBody PageParam<FavoriteQuery> param) {
         // TODO: 实现分页查询逻辑
         return ResultBean.success();
+    }
+    
+    @PostMapping("/attractions/page")
+    @Operation(summary = "分页查询景点收藏")
+    public ResultBean<PageBean<AttractionFavoriteVO>> attractionFavoritesPage(@RequestBody PageParam<FavoriteQuery> param) {
+        // 创建分页对象
+        Page<Favorite> page = new Page<>(param.getPageNum(), param.getPageSize());
+        
+        // 获取分页数据
+        PageBean<AttractionFavoriteVO> pageBean = favoriteService.getAttractionFavorites(page, param.getQuery());
+        
+        return ResultBean.success(pageBean);
+    }
+    
+    @PostMapping("/attractions/check")
+    @Operation(summary = "检查景点是否已收藏")
+    public ResultBean<Boolean> checkAttractionFavorite(@RequestBody AttractionFavoriteDTO dto) {
+        boolean isFavorited = favoriteService.isAttractionFavorited(dto.getUserId(), dto.getAttractionId());
+        return ResultBean.success(isFavorited);
+    }
+    
+    @PostMapping("/attractions/add")
+    @Operation(summary = "收藏景点")
+    public ResultBean<Void> addAttractionFavorite(@RequestBody AttractionFavoriteDTO dto) {
+        boolean result = favoriteService.addAttractionFavorite(dto.getUserId(), dto.getAttractionId());
+        if (result) {
+            return ResultBean.success();
+        } else {
+            return ResultBean.fail(StatusCode.BUSINESS_ERROR, "收藏失败，可能已收藏过该景点");
+        }
+    }
+    
+    @PostMapping("/attractions/remove")
+    @Operation(summary = "取消景点收藏")
+    public ResultBean<Void> removeAttractionFavorite(@RequestBody AttractionFavoriteDTO dto) {
+        boolean result = favoriteService.removeAttractionFavorite(dto.getUserId(), dto.getAttractionId());
+        if (result) {
+            return ResultBean.success();
+        } else {
+            return ResultBean.fail(StatusCode.BUSINESS_ERROR, "取消收藏失败，可能未收藏过该景点");
+        }
     }
     
     @GetMapping("/{id}")

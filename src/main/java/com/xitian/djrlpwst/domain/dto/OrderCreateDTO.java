@@ -40,4 +40,7 @@ public class OrderCreateDTO {
     @Schema(description = "总金额")
     @NotNull(message = "总金额不能为空")
     private BigDecimal totalAmount;
+    
+    @Schema(description = "订单状态(0-待支付,1-已支付,2-已使用,3-已取消,4-已退款)")
+    private Integer status;
 }
