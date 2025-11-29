@@ -20,6 +20,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/orders")
 @Tag(name = "订单管理", description = "订单管理接口")
@@ -128,7 +130,7 @@ public class OrderController extends BaseController<Order> {
         // 根据状态设置支付时间和过期时间
         if (status == 1) { // 已支付状态
             entity.setPaymentTime(java.time.LocalDateTime.now());
-            // 设置过期时间为30天后
+            // 设置过期时间为180天后
             entity.setExpireTime(java.time.LocalDateTime.now().plusDays(180));
         }
         // 如果是待支付状态(0)或其他状态，支付时间和过期时间保持为null
@@ -139,17 +141,13 @@ public class OrderController extends BaseController<Order> {
     @PutMapping
     @Operation(summary = "修改订单")
     public ResultBean<Void> update(@Valid @RequestBody OrderUpdateDTO updateDTO) {
-        // 获取原始订单信息
-        Order existingOrder = orderService.getById(updateDTO.getId());
-        if (existingOrder == null) {
+        // 调用服务层方法更新订单状态及相关时间字段
+        boolean result = orderService.updateOrderStatus(updateDTO.getId(), updateDTO.getStatus(), updateDTO.getUsedTime());
+        
+        if (!result) {
             return ResultBean.fail(StatusCode.DATA_NOT_FOUND, "订单不存在");
         }
         
-        // 只复制非空属性到现有实体
-        BeanUtil.copyNonNullProperties(updateDTO, existingOrder);
-        
-        // 更新订单信息
-        orderService.updateById(existingOrder);
         return ResultBean.success();
     }
     

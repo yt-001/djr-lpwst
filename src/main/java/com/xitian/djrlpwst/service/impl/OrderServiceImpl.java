@@ -106,8 +106,10 @@ public class OrderServiceImpl extends BaseServiceImpl<Order> implements OrderSer
                     // 不支持的排序字段，不添加排序条件，使用数据库默认顺序
                     break;
             }
+        } else {
+            // 默认按创建时间倒序排列（最新的订单在前）
+            wrapper.orderByDesc(Order::getCreateTime);
         }
-        // 如果没有指定排序字段，则不添加排序条件，使用数据库默认顺序
         
         // 执行分页查询
         Page<Order> result = orderMapper.selectPage(page, wrapper);
@@ -188,8 +190,10 @@ public class OrderServiceImpl extends BaseServiceImpl<Order> implements OrderSer
                     // 不支持的排序字段，不添加排序条件，使用数据库默认顺序
                     break;
             }
+        } else {
+            // 默认按创建时间倒序排列（最新的订单在前）
+            wrapper.orderByDesc(Order::getCreateTime);
         }
-        // 如果没有指定排序字段，则不添加排序条件，使用数据库默认顺序
         
         // 执行分页查询
         Page<Order> result = orderMapper.selectPage(page, wrapper);
@@ -385,5 +389,69 @@ public class OrderServiceImpl extends BaseServiceImpl<Order> implements OrderSer
         pageBean.setPageSize(pageSize);
         
         return pageBean;
+    }
+    
+    @Override
+    public boolean updateOrderStatus(Long orderId, Integer newStatus, LocalDateTime usedTime) {
+        // 获取原始订单信息
+        Order existingOrder = this.getById(orderId);
+        if (existingOrder == null) {
+            return false;
+        }
+        
+        // 检查订单状态是否发生变化
+        Integer oldStatus = existingOrder.getStatus();
+        
+        // 如果状态发生了变化，需要更新相应的时间字段
+        if (newStatus != null && !newStatus.equals(oldStatus)) {
+            // 根据新状态设置相应的时间字段
+            switch (newStatus) {
+                case 1: // 已支付
+                    // 如果之前不是已支付状态，则更新支付时间
+                    if (oldStatus != 1) {
+                        existingOrder.setPaymentTime(LocalDateTime.now());
+                        // 设置过期时间为180天后
+                        existingOrder.setExpireTime(LocalDateTime.now().plusDays(180));
+                    }
+                    break;
+                case 2: // 已使用
+                    // 更新使用时间
+                    existingOrder.setUsedTime(LocalDateTime.now());
+                    break;
+                case 3: // 已取消
+                case 4: // 已退款
+                    // 清除支付时间和过期时间
+                    existingOrder.setPaymentTime(null);
+                    existingOrder.setExpireTime(null);
+                    break;
+                default:
+                    // 对于其他状态（如待支付0），清除支付相关时间
+                    if (oldStatus == 1 || oldStatus == 2) {
+                        existingOrder.setPaymentTime(null);
+                        existingOrder.setUsedTime(null);
+                        existingOrder.setExpireTime(null);
+                    }
+                    break;
+            }
+        } else if (newStatus == null && usedTime != null) {
+            // 如果没有更新状态，但是更新了使用时间，也要确保状态是已使用
+            if (oldStatus == null || oldStatus != 2) {
+                existingOrder.setStatus(2); // 设置为已使用状态
+                existingOrder.setUsedTime(usedTime);
+            }
+        }
+        
+        // 更新状态
+        if (newStatus != null) {
+            existingOrder.setStatus(newStatus);
+        }
+        
+        // 更新使用时间
+        if (usedTime != null) {
+            existingOrder.setUsedTime(usedTime);
+        }
+        
+        // 更新订单信息
+        return this.updateById(existingOrder);
     }
 }

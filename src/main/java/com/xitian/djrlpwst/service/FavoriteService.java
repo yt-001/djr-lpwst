@@ -6,6 +6,8 @@ import com.xitian.djrlpwst.bean.base.service.BaseService;
 import com.xitian.djrlpwst.domain.entity.Favorite;
 import com.xitian.djrlpwst.domain.query.FavoriteQuery;
 import com.xitian.djrlpwst.domain.vo.AttractionFavoriteVO;
+import com.xitian.djrlpwst.domain.vo.AccommodationFavoriteVO;
+import com.xitian.djrlpwst.domain.vo.RestaurantFavoriteVO;
 
 import java.util.List;
 
@@ -41,4 +43,66 @@ public interface FavoriteService extends BaseService<Favorite> {
      * @return 是否取消成功
      */
     boolean removeAttractionFavorite(Long userId, Long attractionId);
+    
+    /**
+     * 检查用户是否已收藏指定住宿
+     * @param userId 用户ID
+     * @param accommodationId 住宿ID
+     * @return 是否已收藏
+     */
+    boolean isAccommodationFavorited(Long userId, Long accommodationId);
+    
+    /**
+     * 获取用户收藏的住宿列表（分页）
+     * @param param 查询参数
+     * @return 分页数据
+     */
+    PageBean<AccommodationFavoriteVO> getAccommodationFavorites(Page<Favorite> param);
+    
+    /**
+     * 添加住宿收藏
+     * @param userId 用户ID
+     * @param accommodationId 住宿ID
+     * @return 是否收藏成功
+     */
+    boolean addAccommodationFavorite(Long userId, Long accommodationId);
+    
+    /**
+     * 取消住宿收藏
+     * @param userId 用户ID
+     * @param accommodationId 住宿ID
+     * @return 是否取消成功
+     */
+    boolean removeAccommodationFavorite(Long userId, Long accommodationId);
+    
+    /**
+     * 检查用户是否已收藏指定美食
+     * @param userId 用户ID
+     * @param restaurantId 美食ID
+     * @return 是否已收藏
+     */
+    boolean isRestaurantFavorited(Long userId, Long restaurantId);
+    
+    /**
+     * 获取用户收藏的美食列表（分页）
+     * @param param 查询参数
+     * @return 分页数据
+     */
+    PageBean<RestaurantFavoriteVO> getRestaurantFavorites(Page<Favorite> param);
+    
+    /**
+     * 添加美食收藏
+     * @param userId 用户ID
+     * @param restaurantId 美食ID
+     * @return 是否收藏成功
+     */
+    boolean addRestaurantFavorite(Long userId, Long restaurantId);
+    
+    /**
+     * 取消美食收藏
+     * @param userId 用户ID
+     * @param restaurantId 美食ID
+     * @return 是否取消成功
+     */
+    boolean removeRestaurantFavorite(Long userId, Long restaurantId);
 }

@@ -7,9 +7,13 @@ import com.xitian.djrlpwst.bean.ResultBean;
 import com.xitian.djrlpwst.bean.StatusCode;
 import com.xitian.djrlpwst.bean.base.BaseController;
 import com.xitian.djrlpwst.domain.dto.AttractionFavoriteDTO;
+import com.xitian.djrlpwst.domain.dto.AccommodationFavoriteDTO;
+import com.xitian.djrlpwst.domain.dto.RestaurantFavoriteDTO;
 import com.xitian.djrlpwst.domain.entity.Favorite;
 import com.xitian.djrlpwst.domain.query.FavoriteQuery;
 import com.xitian.djrlpwst.domain.vo.AttractionFavoriteVO;
+import com.xitian.djrlpwst.domain.vo.AccommodationFavoriteVO;
+import com.xitian.djrlpwst.domain.vo.RestaurantFavoriteVO;
 import com.xitian.djrlpwst.domain.vo.FavoriteVO;
 import com.xitian.djrlpwst.service.FavoriteService;
 import com.xitian.djrlpwst.util.BeanUtil;
@@ -18,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -40,9 +45,60 @@ public class FavoriteController extends BaseController<Favorite> {
     public ResultBean<PageBean<AttractionFavoriteVO>> attractionFavoritesPage(@RequestBody PageParam<FavoriteQuery> param) {
         // 创建分页对象
         Page<Favorite> page = new Page<>(param.getPageNum(), param.getPageSize());
+        // 从查询参数中获取用户ID
+        Long userId = param.getQuery() != null ? param.getQuery().getUserId() : null;
+        
+        // 如果用户ID存在，则设置到page对象中
+        if (userId != null) {
+            Favorite favorite = new Favorite();
+            favorite.setUserId(userId);
+            page.setRecords(Arrays.asList(favorite));
+        }
         
         // 获取分页数据
         PageBean<AttractionFavoriteVO> pageBean = favoriteService.getAttractionFavorites(page);
+        
+        return ResultBean.success(pageBean);
+    }
+    
+    @PostMapping("/accommodations/page")
+    @Operation(summary = "分页查询住宿收藏")
+    public ResultBean<PageBean<AccommodationFavoriteVO>> accommodationFavoritesPage(@RequestBody PageParam<FavoriteQuery> param) {
+        // 创建分页对象
+        Page<Favorite> page = new Page<>(param.getPageNum(), param.getPageSize());
+        // 从查询参数中获取用户ID
+        Long userId = param.getQuery() != null ? param.getQuery().getUserId() : null;
+        
+        // 如果用户ID存在，则设置到page对象中
+        if (userId != null) {
+            Favorite favorite = new Favorite();
+            favorite.setUserId(userId);
+            page.setRecords(Arrays.asList(favorite));
+        }
+        
+        // 获取分页数据
+        PageBean<AccommodationFavoriteVO> pageBean = favoriteService.getAccommodationFavorites(page);
+        
+        return ResultBean.success(pageBean);
+    }
+    
+    @PostMapping("/restaurants/page")
+    @Operation(summary = "分页查询美食收藏")
+    public ResultBean<PageBean<RestaurantFavoriteVO>> restaurantFavoritesPage(@RequestBody PageParam<FavoriteQuery> param) {
+        // 创建分页对象
+        Page<Favorite> page = new Page<>(param.getPageNum(), param.getPageSize());
+        // 从查询参数中获取用户ID
+        Long userId = param.getQuery() != null ? param.getQuery().getUserId() : null;
+        
+        // 如果用户ID存在，则设置到page对象中
+        if (userId != null) {
+            Favorite favorite = new Favorite();
+            favorite.setUserId(userId);
+            page.setRecords(Arrays.asList(favorite));
+        }
+        
+        // 获取分页数据
+        PageBean<RestaurantFavoriteVO> pageBean = favoriteService.getRestaurantFavorites(page);
         
         return ResultBean.success(pageBean);
     }
@@ -51,6 +107,20 @@ public class FavoriteController extends BaseController<Favorite> {
     @Operation(summary = "检查景点是否已收藏")
     public ResultBean<Boolean> checkAttractionFavorite(@RequestBody AttractionFavoriteDTO dto) {
         boolean isFavorited = favoriteService.isAttractionFavorited(dto.getUserId(), dto.getAttractionId());
+        return ResultBean.success(isFavorited);
+    }
+    
+    @PostMapping("/accommodations/check")
+    @Operation(summary = "检查住宿是否已收藏")
+    public ResultBean<Boolean> checkAccommodationFavorite(@RequestBody AccommodationFavoriteDTO dto) {
+        boolean isFavorited = favoriteService.isAccommodationFavorited(dto.getUserId(), dto.getAccommodationId());
+        return ResultBean.success(isFavorited);
+    }
+    
+    @PostMapping("/restaurants/check")
+    @Operation(summary = "检查美食是否已收藏")
+    public ResultBean<Boolean> checkRestaurantFavorite(@RequestBody RestaurantFavoriteDTO dto) {
+        boolean isFavorited = favoriteService.isRestaurantFavorited(dto.getUserId(), dto.getRestaurantId());
         return ResultBean.success(isFavorited);
     }
     
@@ -65,6 +135,28 @@ public class FavoriteController extends BaseController<Favorite> {
         }
     }
     
+    @PostMapping("/accommodations/add")
+    @Operation(summary = "收藏住宿")
+    public ResultBean<Void> addAccommodationFavorite(@RequestBody AccommodationFavoriteDTO dto) {
+        boolean result = favoriteService.addAccommodationFavorite(dto.getUserId(), dto.getAccommodationId());
+        if (result) {
+            return ResultBean.success();
+        } else {
+            return ResultBean.fail(StatusCode.BUSINESS_ERROR, "收藏失败，可能已收藏过该住宿");
+        }
+    }
+    
+    @PostMapping("/restaurants/add")
+    @Operation(summary = "收藏美食")
+    public ResultBean<Void> addRestaurantFavorite(@RequestBody RestaurantFavoriteDTO dto) {
+        boolean result = favoriteService.addRestaurantFavorite(dto.getUserId(), dto.getRestaurantId());
+        if (result) {
+            return ResultBean.success();
+        } else {
+            return ResultBean.fail(StatusCode.BUSINESS_ERROR, "收藏失败，可能已收藏过该美食");
+        }
+    }
+    
     @PostMapping("/attractions/remove")
     @Operation(summary = "取消景点收藏")
     public ResultBean<Void> removeAttractionFavorite(@RequestBody AttractionFavoriteDTO dto) {
@@ -73,6 +165,28 @@ public class FavoriteController extends BaseController<Favorite> {
             return ResultBean.success();
         } else {
             return ResultBean.fail(StatusCode.BUSINESS_ERROR, "取消收藏失败，可能未收藏过该景点");
+        }
+    }
+    
+    @PostMapping("/accommodations/remove")
+    @Operation(summary = "取消住宿收藏")
+    public ResultBean<Void> removeAccommodationFavorite(@RequestBody AccommodationFavoriteDTO dto) {
+        boolean result = favoriteService.removeAccommodationFavorite(dto.getUserId(), dto.getAccommodationId());
+        if (result) {
+            return ResultBean.success();
+        } else {
+            return ResultBean.fail(StatusCode.BUSINESS_ERROR, "取消收藏失败，可能未收藏过该住宿");
+        }
+    }
+    
+    @PostMapping("/restaurants/remove")
+    @Operation(summary = "取消美食收藏")
+    public ResultBean<Void> removeRestaurantFavorite(@RequestBody RestaurantFavoriteDTO dto) {
+        boolean result = favoriteService.removeRestaurantFavorite(dto.getUserId(), dto.getRestaurantId());
+        if (result) {
+            return ResultBean.success();
+        } else {
+            return ResultBean.fail(StatusCode.BUSINESS_ERROR, "取消收藏失败，可能未收藏过该美食");
         }
     }
     

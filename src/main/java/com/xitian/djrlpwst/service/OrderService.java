@@ -48,4 +48,13 @@ public interface OrderService extends BaseService<Order> {
      * @return 分页数据
      */
     PageBean<OrderVO> getPendingValidOrders(PageParam<OrderQuery> param);
+    
+    /**
+     * 更新订单状态及相关时间字段
+     * @param orderId 订单ID
+     * @param newStatus 新的订单状态
+     * @param usedTime 使用时间（可选）
+     * @return 是否更新成功
+     */
+    boolean updateOrderStatus(Long orderId, Integer newStatus, LocalDateTime usedTime);
 }
