@@ -1,7 +1,5 @@
 package com.xitian.djrlpwst.domain.vo;
 
-import com.xitian.djrlpwst.bean.base.BaseVO;
-import com.xitian.djrlpwst.domain.entity.AccommodationFacility;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -9,13 +7,15 @@ import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
+@Schema(name = "AccommodationDetailVO", description = "住宿详情视图对象")
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(name = "AccommodationVO", description = "住宿视图对象")
-public class AccommodationVO extends BaseVO {
+public class AccommodationDetailVO {
+    
+    @Schema(description = "编号")
+    private Long id;
     
     @Schema(description = "住宿名称")
     private String name;
@@ -51,7 +51,7 @@ public class AccommodationVO extends BaseVO {
     private Integer capacity;
     
     @Schema(description = "设施列表")
-    private List<AccommodationFacility> facilities;
+    private List<AccommodationFacilitySimpleVO> facilities;
     
     @Schema(description = "联系电话")
     private String contactPhone;

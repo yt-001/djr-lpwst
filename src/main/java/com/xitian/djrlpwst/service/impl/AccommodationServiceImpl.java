@@ -7,18 +7,19 @@ import com.xitian.djrlpwst.bean.PageBean;
 import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.base.service.BaseServiceImpl;
 import com.xitian.djrlpwst.converter.AccommodationConverter;
-import com.xitian.djrlpwst.domain.entity.Accommodation;
+import com.xitian.djrlpwst.domain.entity.*;
 import com.xitian.djrlpwst.domain.query.AccommodationQuery;
-import com.xitian.djrlpwst.domain.vo.AccommodationVO;
-import com.xitian.djrlpwst.domain.vo.AccommodationAdminVO;
-import com.xitian.djrlpwst.mapper.AccommodationMapper;
+import com.xitian.djrlpwst.domain.vo.*;
+import com.xitian.djrlpwst.mapper.*;
 import com.xitian.djrlpwst.service.AccommodationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AccommodationServiceImpl extends BaseServiceImpl<Accommodation> implements AccommodationService {
@@ -27,10 +28,19 @@ public class AccommodationServiceImpl extends BaseServiceImpl<Accommodation> imp
     private AccommodationMapper accommodationMapper;
     
     @Autowired
+    private AccommodationTypeMapper accommodationTypeMapper;
+    
+    @Autowired
+    private AccommodationFacilityMapper accommodationFacilityMapper;
+    
+    @Autowired
+    private AccommodationFacilityRelationMapper accommodationFacilityRelationMapper;
+    
+    @Autowired
     private AccommodationConverter accommodationConverter;
 
     @Override
-    public PageBean<AccommodationVO> getPage(PageParam<AccommodationQuery> param) {
+    public PageBean<AccommodationSimpleVO> getPage(PageParam<AccommodationQuery> param) {
         // 获取分页参数
         int pageNum = param.getPageNum();
         int pageSize = param.getPageSize();
@@ -46,8 +56,8 @@ public class AccommodationServiceImpl extends BaseServiceImpl<Accommodation> imp
                 wrapper.like(Accommodation::getName, query.getName());
             }
             
-            if (StringUtils.hasText(query.getType())) {
-                wrapper.like(Accommodation::getType, query.getType());
+            if (query.getTypeId() != null) {
+                wrapper.eq(Accommodation::getTypeId, query.getTypeId());
             }
             
             if (StringUtils.hasText(query.getLocation())) {
@@ -86,17 +96,94 @@ public class AccommodationServiceImpl extends BaseServiceImpl<Accommodation> imp
         // 执行分页查询
         Page<Accommodation> result = accommodationMapper.selectPage(page, wrapper);
         
-        // 转换结果为VO对象
-        List<AccommodationVO> voList = accommodationConverter.toVOList(result.getRecords());
+        // 获取住宿类型和设施信息
+        List<AccommodationType> types = new ArrayList<>();
+        List<List<AccommodationFacility>> facilitiesList = new ArrayList<>();
+        
+        for (Accommodation accommodation : result.getRecords()) {
+            // 获取类型信息
+            AccommodationType type = null;
+            if (accommodation.getTypeId() != null) {
+                type = accommodationTypeMapper.selectById(accommodation.getTypeId());
+            }
+            types.add(type);
+            
+            // 获取设施信息
+            List<AccommodationFacility> facilities = new ArrayList<>();
+            if (accommodation.getId() != null) {
+                // 先获取关联关系
+                LambdaQueryWrapper<AccommodationFacilityRelation> relationWrapper = Wrappers.lambdaQuery();
+                relationWrapper.eq(AccommodationFacilityRelation::getAccommodationId, accommodation.getId());
+                List<AccommodationFacilityRelation> relations = accommodationFacilityRelationMapper.selectList(relationWrapper);
+                
+                // 根据关联关系获取设施详情
+                if (!relations.isEmpty()) {
+                    List<Integer> facilityIds = relations.stream()
+                            .map(AccommodationFacilityRelation::getFacilityId)
+                            .collect(Collectors.toList());
+                    
+                    LambdaQueryWrapper<AccommodationFacility> facilityWrapper = Wrappers.lambdaQuery();
+                    facilityWrapper.in(AccommodationFacility::getId, facilityIds);
+                    facilities = accommodationFacilityMapper.selectList(facilityWrapper);
+                }
+            }
+            facilitiesList.add(facilities);
+        }
+        
+        // 转换结果为简化VO对象
+        List<AccommodationSimpleVO> voList = accommodationConverter.toSimpleVOList(result.getRecords(), types, facilitiesList);
         
         // 封装分页结果
-        PageBean<AccommodationVO> pageBean = new PageBean<>();
+        PageBean<AccommodationSimpleVO> pageBean = new PageBean<>();
         pageBean.setTotal(result.getTotal());
         pageBean.setList(voList);
         pageBean.setPageNum(pageNum);
         pageBean.setPageSize(pageSize);
         
         return pageBean;
+    }
+    
+    @Override
+    public AccommodationDetailVO getById(Long id) {
+        // 查询住宿信息
+        Accommodation accommodation = accommodationMapper.selectById(id);
+        if (accommodation == null) {
+            return null;
+        }
+        
+        // 获取类型信息
+        AccommodationType type = null;
+        if (accommodation.getTypeId() != null) {
+            type = accommodationTypeMapper.selectById(accommodation.getTypeId());
+        }
+        
+        // 获取设施信息
+        List<AccommodationFacility> facilities = new ArrayList<>();
+        if (accommodation.getId() != null) {
+            // 先获取关联关系
+            LambdaQueryWrapper<AccommodationFacilityRelation> relationWrapper = Wrappers.lambdaQuery();
+            relationWrapper.eq(AccommodationFacilityRelation::getAccommodationId, accommodation.getId());
+            List<AccommodationFacilityRelation> relations = accommodationFacilityRelationMapper.selectList(relationWrapper);
+            
+            // 根据关联关系获取设施详情
+            if (!relations.isEmpty()) {
+                List<Integer> facilityIds = relations.stream()
+                        .map(AccommodationFacilityRelation::getFacilityId)
+                        .collect(Collectors.toList());
+                
+                LambdaQueryWrapper<AccommodationFacility> facilityWrapper = Wrappers.lambdaQuery();
+                facilityWrapper.in(AccommodationFacility::getId, facilityIds);
+                facilities = accommodationFacilityMapper.selectList(facilityWrapper);
+            }
+        }
+        
+        // 转换为详情VO对象
+        return accommodationConverter.toDetailVO(accommodation, type, facilities);
+    }
+    
+    @Override
+    public Accommodation getEntityById(Long id) {
+        return accommodationMapper.selectById(id);
     }
     
     @Override
@@ -116,8 +203,8 @@ public class AccommodationServiceImpl extends BaseServiceImpl<Accommodation> imp
                 wrapper.like(Accommodation::getName, query.getName());
             }
             
-            if (StringUtils.hasText(query.getType())) {
-                wrapper.like(Accommodation::getType, query.getType());
+            if (query.getTypeId() != null) {
+                wrapper.eq(Accommodation::getTypeId, query.getTypeId());
             }
             
             if (StringUtils.hasText(query.getLocation())) {
@@ -156,8 +243,18 @@ public class AccommodationServiceImpl extends BaseServiceImpl<Accommodation> imp
         // 执行分页查询
         Page<Accommodation> result = accommodationMapper.selectPage(page, wrapper);
         
+        // 获取住宿类型信息
+        List<AccommodationType> types = new ArrayList<>();
+        for (Accommodation accommodation : result.getRecords()) {
+            AccommodationType type = null;
+            if (accommodation.getTypeId() != null) {
+                type = accommodationTypeMapper.selectById(accommodation.getTypeId());
+            }
+            types.add(type);
+        }
+        
         // 转换结果为VO对象
-        List<AccommodationAdminVO> voList = accommodationConverter.toAdminVOList(result.getRecords());
+        List<AccommodationAdminVO> voList = accommodationConverter.toAdminVOList(result.getRecords(), types);
         
         // 封装分页结果
         PageBean<AccommodationAdminVO> pageBean = new PageBean<>();

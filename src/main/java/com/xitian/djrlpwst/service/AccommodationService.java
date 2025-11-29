@@ -6,21 +6,37 @@ import com.xitian.djrlpwst.bean.base.service.BaseService;
 import com.xitian.djrlpwst.domain.entity.Accommodation;
 import com.xitian.djrlpwst.domain.query.AccommodationQuery;
 import com.xitian.djrlpwst.domain.vo.AccommodationVO;
+import com.xitian.djrlpwst.domain.vo.AccommodationSimpleVO;
+import com.xitian.djrlpwst.domain.vo.AccommodationDetailVO;
 import com.xitian.djrlpwst.domain.vo.AccommodationAdminVO;
 
-public interface AccommodationService extends BaseService<Accommodation> {
+public interface  AccommodationService extends BaseService<Accommodation> {
     
     /**
-     * 根据查询条件和分页参数分页获取住宿列表
+     * 分页查询住宿信息（前端用户使用）
      * @param param 分页参数和查询条件
-     * @return 分页结果
+     * @return 住宿信息分页结果
      */
-    PageBean<AccommodationVO> getPage(PageParam<AccommodationQuery> param);
+    PageBean<AccommodationSimpleVO> getPage(PageParam<AccommodationQuery> param);
     
     /**
-     * 管理员端分页获取住宿详情列表
+     * 根据ID查询住宿详情
+     * @param id 住宿ID
+     * @return 住宿详情
+     */
+    AccommodationDetailVO getById(Long id);
+    
+    /**
+     * 根据ID查询住宿实体
+     * @param id 住宿ID
+     * @return 住宿实体
+     */
+    Accommodation getEntityById(Long id);
+    
+    /**
+     * 分页查询住宿信息（管理端使用）
      * @param param 分页参数和查询条件
-     * @return 分页结果
+     * @return 住宿信息分页结果
      */
     PageBean<AccommodationAdminVO> getAdminPage(PageParam<AccommodationQuery> param);
 }

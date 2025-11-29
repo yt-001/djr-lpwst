@@ -9,7 +9,9 @@ import com.xitian.djrlpwst.converter.AccommodationConverter;
 import com.xitian.djrlpwst.domain.dto.AccommodationUpdateDTO;
 import com.xitian.djrlpwst.domain.entity.Accommodation;
 import com.xitian.djrlpwst.domain.query.AccommodationQuery;
+import com.xitian.djrlpwst.domain.vo.AccommodationDetailVO;
 import com.xitian.djrlpwst.domain.vo.AccommodationVO;
+import com.xitian.djrlpwst.domain.vo.AccommodationSimpleVO;
 import com.xitian.djrlpwst.domain.vo.AccommodationAdminVO;
 import com.xitian.djrlpwst.service.AccommodationService;
 import com.xitian.djrlpwst.util.BeanUtil;
@@ -33,8 +35,8 @@ public class AccommodationController extends BaseController<Accommodation> {
     
     @PostMapping("/page")
     @Operation(summary = "分页查询住宿")
-    public ResultBean<PageBean<AccommodationVO>> page(@RequestBody PageParam<AccommodationQuery> param) {
-        PageBean<AccommodationVO> page = accommodationService.getPage(param);
+    public ResultBean<PageBean<AccommodationSimpleVO>> page(@RequestBody PageParam<AccommodationQuery> param) {
+        PageBean<AccommodationSimpleVO> page = accommodationService.getPage(param);
         return ResultBean.success(page);
     }
     
@@ -48,8 +50,8 @@ public class AccommodationController extends BaseController<Accommodation> {
     
     @GetMapping("/{id}")
     @Operation(summary = "根据ID查询住宿")
-    public ResultBean<Accommodation> getById(@PathVariable Long id) {
-        Accommodation accommodation = accommodationService.getById(id);
+    public ResultBean<AccommodationDetailVO> getById(@PathVariable Long id) {
+        AccommodationDetailVO accommodation = accommodationService.getById(id);
         return ResultBean.success(accommodation);
     }
     
@@ -64,7 +66,7 @@ public class AccommodationController extends BaseController<Accommodation> {
     @Operation(summary = "修改住宿")
     public ResultBean<Void> update(@Valid @RequestBody AccommodationUpdateDTO updateDTO) {
         // 获取原始住宿信息
-        Accommodation existingAccommodation = accommodationService.getById(updateDTO.getId());
+        Accommodation existingAccommodation = accommodationService.getEntityById(updateDTO.getId());
         if (existingAccommodation == null) {
             return ResultBean.fail(StatusCode.DATA_NOT_FOUND, "住宿不存在");
         }
