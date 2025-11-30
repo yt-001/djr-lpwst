@@ -13,6 +13,7 @@ import com.xitian.djrlpwst.domain.query.AttractionQuery;
 import com.xitian.djrlpwst.domain.vo.AttractionListVO;
 import com.xitian.djrlpwst.domain.vo.AttractionVO;
 import com.xitian.djrlpwst.domain.vo.AttractionDetailVO;
+import com.xitian.djrlpwst.domain.vo.AttractionMapVO;
 import com.xitian.djrlpwst.service.AttractionService;
 import com.xitian.djrlpwst.util.BeanUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +22,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/attractions")
@@ -32,6 +36,26 @@ public class AttractionController extends BaseController<Attraction> {
     
     @Autowired
     private AttractionConverter attractionConverter;
+    
+    @GetMapping("/map")
+    @Operation(summary = "用户地图查看景点接口")
+    public ResultBean<List<AttractionMapVO>> map() {
+        List<Attraction> attractions = attractionService.list().stream()
+                .limit(5)
+                .collect(Collectors.toList());
+        
+        List<AttractionMapVO> mapVOs = attractions.stream()
+                .map(attraction -> AttractionMapVO.builder()
+                        .id(attraction.getId())
+                        .name(attraction.getName())
+                        .description(attraction.getDescription())
+                        .latitude(attraction.getLatitude())
+                        .longitude(attraction.getLongitude())
+                        .build())
+                .collect(Collectors.toList());
+        
+        return ResultBean.success(mapVOs);
+    }
     
     @PostMapping("/page")
     @Operation(summary = "分页查询景点")

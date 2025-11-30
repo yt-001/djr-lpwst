@@ -9,6 +9,9 @@ import lombok.*;
 @Schema(name = "AttractionQuery", description = "景点查询对象")
 public class AttractionQuery extends BaseQuery {
     
+    @Schema(description = "景点ID")
+    private Long id;
+    
     @Schema(description = "景点名称")
     private String name;
     
