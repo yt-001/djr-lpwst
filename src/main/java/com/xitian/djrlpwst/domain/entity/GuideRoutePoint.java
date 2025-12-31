@@ -47,5 +47,12 @@ public class GuideRoutePoint extends BaseEntity {
 
     @Schema(description = "备注说明")
     private String remark;
-}
 
+    @TableField("canvas_x")
+    @Schema(description = "画布X坐标")
+    private Integer canvasX;
+
+    @TableField("canvas_y")
+    @Schema(description = "画布Y坐标")
+    private Integer canvasY;
+}
