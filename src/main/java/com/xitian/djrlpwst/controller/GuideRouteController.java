@@ -46,9 +46,24 @@ public class GuideRouteController {
         return ResultBean.success(entity.getId());
     }
 
-    @PutMapping
-    @Operation(summary = "修改向导路线")
-    public ResultBean<Void> update() {
+    @PutMapping("/{id}")
+    @Operation(summary = "修改向导路线基础信息")
+    public ResultBean<Void> update(@PathVariable Long id, @Valid @RequestBody GuideRouteCreateDTO updateDTO) {
+        if (id == null) {
+            return ResultBean.success();
+        }
+        GuideRoute update = new GuideRoute();
+        update.setId(id);
+        update.setName(updateDTO.getName());
+        update.setDescription(updateDTO.getDescription());
+        update.setCoverImage(updateDTO.getCoverImage());
+        update.setTotalDistance(updateDTO.getTotalDistance());
+        update.setTotalDuration(updateDTO.getTotalDuration());
+        update.setStatus((byte) 1);
+        if (updateDTO.getEditStatus() != null) {
+            update.setEditStatus(updateDTO.getEditStatus());
+        }
+        guideRouteService.updateById(update);
         return ResultBean.success();
     }
 
