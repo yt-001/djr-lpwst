@@ -57,6 +57,27 @@ public class GuideRouteServiceImpl extends BaseServiceImpl<GuideRoute> implement
     }
 
     @Override
+    public List<GuideRouteCardVO> getDraftCardList() {
+        LambdaQueryWrapper<GuideRoute> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(GuideRoute::getStatus, (byte) 1)
+                .eq(GuideRoute::getEditStatus, (byte) 0)
+                .orderByDesc(GuideRoute::getCreateTime);
+        List<GuideRoute> routes = guideRouteMapper.selectList(wrapper);
+        if (routes == null || routes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Integer> pointCounts = new ArrayList<>(routes.size());
+        for (GuideRoute route : routes) {
+            long count = guideRoutePointMapper.selectCount(
+                    Wrappers.<GuideRoutePoint>lambdaQuery()
+                            .eq(GuideRoutePoint::getRouteId, route.getId().intValue())
+            );
+            pointCounts.add((int) count);
+        }
+        return guideRouteConverter.toCardVOList(routes, pointCounts);
+    }
+
+    @Override
     public GuideRouteDetailVO getRouteDetail(Long routeId) {
         if (routeId == null) {
             return null;
@@ -120,6 +141,7 @@ public class GuideRouteServiceImpl extends BaseServiceImpl<GuideRoute> implement
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
     public void updateRouteWorkflow(Long routeId, GuideRouteWorkflowUpdateDTO dto) {
         if (routeId == null || dto == null) {
             return;
@@ -128,36 +150,119 @@ public class GuideRouteServiceImpl extends BaseServiceImpl<GuideRoute> implement
         if (route == null) {
             return;
         }
+
+        java.util.Map<String, Integer> idMap = new java.util.HashMap<>();
+        List<Integer> validPointIds = new ArrayList<>();
+
         if (dto.getPoints() != null) {
-            for (GuideRouteWorkflowUpdateDTO.PointLayout pointLayout : dto.getPoints()) {
-                if (pointLayout == null || pointLayout.getId() == null) {
+            int order = 1;
+            for (GuideRouteWorkflowUpdateDTO.PointLayout pointDto : dto.getPoints()) {
+                if (pointDto == null || pointDto.getId() == null) {
                     continue;
                 }
-                GuideRoutePoint point = new GuideRoutePoint();
-                point.setId(pointLayout.getId());
-                point.setCanvasX(pointLayout.getCanvasX());
-                point.setCanvasY(pointLayout.getCanvasY());
-                guideRoutePointMapper.updateById(point);
+
+                String inputIdStr = pointDto.getId();
+                Integer dbId = null;
+
+                // Check if it is a real DB ID (numeric and not a temp string)
+                boolean isTempId = inputIdStr.startsWith("marker-") || inputIdStr.startsWith("node-");
+                if (!isTempId) {
+                    try {
+                        dbId = Integer.parseInt(inputIdStr);
+                        // Verify existence
+                        GuideRoutePoint exist = guideRoutePointMapper.selectById(dbId);
+                        if (exist == null) {
+                            dbId = null; // Treat as new if not found
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignore, treat as temp
+                    }
+                }
+
+                if (dbId != null) {
+                    // Update existing
+                    GuideRoutePoint update = new GuideRoutePoint();
+                    update.setId(dbId.longValue());
+                    update.setCanvasX(pointDto.getCanvasX());
+                    update.setCanvasY(pointDto.getCanvasY());
+                    update.setStepOrder(order++);
+                    // Optional: update other fields if provided
+                    if (pointDto.getName() != null) update.setName(pointDto.getName());
+                    if (pointDto.getLatitude() != null) update.setLatitude(pointDto.getLatitude());
+                    if (pointDto.getLongitude() != null) update.setLongitude(pointDto.getLongitude());
+                    if (pointDto.getAddress() != null) update.setAddress(pointDto.getAddress());
+                    
+                    guideRoutePointMapper.updateById(update);
+                } else {
+                    // Create new
+                    GuideRoutePoint newPoint = GuideRoutePoint.builder()
+                            .routeId(route.getId().intValue())
+                            .stepOrder(order++)
+                            .name(pointDto.getName())
+                            .latitude(pointDto.getLatitude())
+                            .longitude(pointDto.getLongitude())
+                            .address(pointDto.getAddress())
+                            .canvasX(pointDto.getCanvasX())
+                            .canvasY(pointDto.getCanvasY())
+                            .build();
+                    guideRoutePointMapper.insert(newPoint);
+                    dbId = newPoint.getId().intValue();
+                }
+
+                idMap.put(inputIdStr, dbId);
+                validPointIds.add(dbId);
             }
         }
+
+        // 2. Cleanup orphaned points
+        if (!validPointIds.isEmpty()) {
+            guideRoutePointMapper.delete(
+                    Wrappers.<GuideRoutePoint>lambdaQuery()
+                            .eq(GuideRoutePoint::getRouteId, route.getId().intValue())
+                            .notIn(GuideRoutePoint::getId, validPointIds)
+            );
+        } else {
+            // If no points provided, maybe delete all? Or keep?
+            // Usually if points list is provided but empty, we delete all.
+            // If points list is null, we might skip.
+            if (dto.getPoints() != null) {
+                guideRoutePointMapper.delete(
+                        Wrappers.<GuideRoutePoint>lambdaQuery()
+                                .eq(GuideRoutePoint::getRouteId, route.getId().intValue())
+                );
+            }
+        }
+
+        // 3. Process Edges
         if (dto.getEdges() != null) {
+            // Delete all existing edges for this route
             guideRouteEdgeMapper.delete(
                     Wrappers.<GuideRouteEdge>lambdaQuery()
                             .eq(GuideRouteEdge::getRouteId, route.getId().intValue())
             );
+
             for (GuideRouteWorkflowUpdateDTO.Edge edgeDto : dto.getEdges()) {
                 if (edgeDto == null
                         || edgeDto.getSourcePointId() == null
                         || edgeDto.getTargetPointId() == null) {
                     continue;
                 }
-                GuideRouteEdge edge = GuideRouteEdge.builder()
-                        .routeId(route.getId().intValue())
-                        .sourcePointId(edgeDto.getSourcePointId())
-                        .targetPointId(edgeDto.getTargetPointId())
-                        .label(edgeDto.getLabel())
-                        .build();
-                guideRouteEdgeMapper.insert(edge);
+
+                String sourceKey = edgeDto.getSourcePointId();
+                String targetKey = edgeDto.getTargetPointId();
+
+                Integer realSourceId = idMap.get(sourceKey);
+                Integer realTargetId = idMap.get(targetKey);
+
+                if (realSourceId != null && realTargetId != null) {
+                    GuideRouteEdge edge = GuideRouteEdge.builder()
+                            .routeId(route.getId().intValue())
+                            .sourcePointId(realSourceId)
+                            .targetPointId(realTargetId)
+                            .label(edgeDto.getLabel())
+                            .build();
+                    guideRouteEdgeMapper.insert(edge);
+                }
             }
         }
     }

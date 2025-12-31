@@ -1,12 +1,15 @@
 package com.xitian.djrlpwst.controller;
 
 import com.xitian.djrlpwst.bean.ResultBean;
+import com.xitian.djrlpwst.domain.dto.GuideRouteCreateDTO;
 import com.xitian.djrlpwst.domain.dto.GuideRouteWorkflowUpdateDTO;
+import com.xitian.djrlpwst.domain.entity.GuideRoute;
 import com.xitian.djrlpwst.domain.vo.GuideRouteCardVO;
 import com.xitian.djrlpwst.domain.vo.GuideRouteDetailVO;
 import com.xitian.djrlpwst.service.GuideRouteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,8 +32,18 @@ public class GuideRouteController {
 
     @PostMapping
     @Operation(summary = "新增向导路线")
-    public ResultBean<Void> add() {
-        return ResultBean.success();
+    public ResultBean<Long> add(@Valid @RequestBody GuideRouteCreateDTO createDTO) {
+        GuideRoute entity = GuideRoute.builder()
+                .name(createDTO.getName())
+                .description(createDTO.getDescription())
+                .coverImage(createDTO.getCoverImage())
+                .totalDistance(createDTO.getTotalDistance())
+                .totalDuration(createDTO.getTotalDuration())
+                .status((byte) 1)
+                .editStatus(createDTO.getEditStatus() == null ? (byte) 1 : createDTO.getEditStatus())
+                .build();
+        guideRouteService.save(entity);
+        return ResultBean.success(entity.getId());
     }
 
     @PutMapping
@@ -66,9 +79,16 @@ public class GuideRouteController {
     }
 
     @GetMapping("/cards")
-    @Operation(summary = "向导图首页卡片列表")
+    @Operation(summary = "向导图首页卡片列表（已发布）")
     public ResultBean<List<GuideRouteCardVO>> cards() {
         List<GuideRouteCardVO> list = guideRouteService.getHomeCardList();
+        return ResultBean.success(list);
+    }
+
+    @GetMapping("/drafts")
+    @Operation(summary = "向导图草稿卡片列表（暂存）")
+    public ResultBean<List<GuideRouteCardVO>> draftCards() {
+        List<GuideRouteCardVO> list = guideRouteService.getDraftCardList();
         return ResultBean.success(list);
     }
 }
