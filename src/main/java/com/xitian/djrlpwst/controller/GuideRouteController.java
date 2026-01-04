@@ -70,6 +70,7 @@ public class GuideRouteController {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除向导路线")
     public ResultBean<Void> delete(@PathVariable Long id) {
+        guideRouteService.deleteRoute(id);
         return ResultBean.success();
     }
 
@@ -105,5 +106,26 @@ public class GuideRouteController {
     public ResultBean<List<GuideRouteCardVO>> draftCards() {
         List<GuideRouteCardVO> list = guideRouteService.getDraftCardList();
         return ResultBean.success(list);
+    }
+
+    @GetMapping("/disabled-cards")
+    @Operation(summary = "向导图禁用路线卡片列表")
+    public ResultBean<List<GuideRouteCardVO>> disabledCards() {
+        List<GuideRouteCardVO> list = guideRouteService.getDisabledCardList();
+        return ResultBean.success(list);
+    }
+
+    @PutMapping("/{id}/disable")
+    @Operation(summary = "禁用向导路线")
+    public ResultBean<Void> disable(@PathVariable Long id) {
+        guideRouteService.disableRoute(id);
+        return ResultBean.success();
+    }
+
+    @PutMapping("/{id}/enable")
+    @Operation(summary = "启用向导路线")
+    public ResultBean<Void> enable(@PathVariable Long id) {
+        guideRouteService.enableRoute(id);
+        return ResultBean.success();
     }
 }

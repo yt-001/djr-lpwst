@@ -78,6 +78,26 @@ public class GuideRouteServiceImpl extends BaseServiceImpl<GuideRoute> implement
     }
 
     @Override
+    public List<GuideRouteCardVO> getDisabledCardList() {
+        LambdaQueryWrapper<GuideRoute> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(GuideRoute::getStatus, (byte) 0)
+                .orderByDesc(GuideRoute::getCreateTime);
+        List<GuideRoute> routes = guideRouteMapper.selectList(wrapper);
+        if (routes == null || routes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Integer> pointCounts = new ArrayList<>(routes.size());
+        for (GuideRoute route : routes) {
+            long count = guideRoutePointMapper.selectCount(
+                    Wrappers.<GuideRoutePoint>lambdaQuery()
+                            .eq(GuideRoutePoint::getRouteId, route.getId().intValue())
+            );
+            pointCounts.add((int) count);
+        }
+        return guideRouteConverter.toCardVOList(routes, pointCounts);
+    }
+
+    @Override
     public GuideRouteDetailVO getRouteDetail(Long routeId) {
         if (routeId == null) {
             return null;
@@ -265,5 +285,45 @@ public class GuideRouteServiceImpl extends BaseServiceImpl<GuideRoute> implement
                 }
             }
         }
+    }
+
+    @Override
+    public void disableRoute(Long routeId) {
+        if (routeId == null) {
+            return;
+        }
+        GuideRoute update = new GuideRoute();
+        update.setId(routeId);
+        update.setStatus((byte) 0);
+        guideRouteMapper.updateById(update);
+    }
+
+    @Override
+    public void enableRoute(Long routeId) {
+        if (routeId == null) {
+            return;
+        }
+        GuideRoute update = new GuideRoute();
+        update.setId(routeId);
+        update.setStatus((byte) 1);
+        guideRouteMapper.updateById(update);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public void deleteRoute(Long routeId) {
+        if (routeId == null) {
+            return;
+        }
+        int intId = routeId.intValue();
+        guideRoutePointMapper.delete(
+                Wrappers.<GuideRoutePoint>lambdaQuery()
+                        .eq(GuideRoutePoint::getRouteId, intId)
+        );
+        guideRouteEdgeMapper.delete(
+                Wrappers.<GuideRouteEdge>lambdaQuery()
+                        .eq(GuideRouteEdge::getRouteId, intId)
+        );
+        guideRouteMapper.deleteById(routeId);
     }
 }

@@ -14,7 +14,15 @@ public interface GuideRouteService extends BaseService<GuideRoute> {
 
     List<GuideRouteCardVO> getDraftCardList();
 
+    List<GuideRouteCardVO> getDisabledCardList();
+
     GuideRouteDetailVO getRouteDetail(Long routeId);
 
     void updateRouteWorkflow(Long routeId, GuideRouteWorkflowUpdateDTO dto);
+
+    void disableRoute(Long routeId);
+
+    void enableRoute(Long routeId);
+
+    void deleteRoute(Long routeId);
 }
