@@ -16,9 +16,7 @@ import com.xitian.djrlpwst.util.BeanUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,7 +40,6 @@ public class RestaurantController extends BaseController<Restaurant> {
     }
     
     @PostMapping("/admin/page")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "管理员端分页查询美食详情", description = "仅管理员可访问")
     public ResultBean<PageBean<RestaurantAdminVO>> adminPage(@RequestBody PageParam<RestaurantQuery> param) {
         PageBean<RestaurantAdminVO> page = restaurantService.getAdminPage(param);

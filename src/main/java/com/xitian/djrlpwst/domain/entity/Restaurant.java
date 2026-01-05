@@ -1,6 +1,7 @@
 package com.xitian.djrlpwst.domain.entity;
 
 import com.xitian.djrlpwst.bean.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -14,7 +15,11 @@ import lombok.experimental.SuperBuilder;
 @TableName("restaurants")
 @Schema(name = "Restaurant", description = "美食实体类")
 public class Restaurant extends BaseEntity {
-    
+
+    @TableField("category_id")
+    @Schema(description = "餐厅分类ID")
+    private Long categoryId;
+
     @Schema(description = "餐厅/美食名称")
     private String name;
     
