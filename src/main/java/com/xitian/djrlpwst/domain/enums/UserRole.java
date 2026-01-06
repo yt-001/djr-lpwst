@@ -33,6 +33,11 @@ public enum UserRole {
             
             // 美食管理
             "/restaurants/**",
+
+            // 餐饮分类/菜品分类
+            "/restaurant-categories/**",
+            "/dish-categories/**",
+            "/{id}/dishes/options",
             
             // 非遗文化管理
             "/intangible-cultures/**",
@@ -81,6 +86,17 @@ public enum UserRole {
             // 美食浏览
             "/restaurants/page",
             "/restaurants/{id}",
+
+            // 美食菜品浏览
+            "/restaurants/{id}/dishes",
+            "/restaurants/{id}/dishes/page",
+
+            // 餐饮分类/菜品分类浏览
+            "/restaurant-categories/page",
+            "/restaurant-categories/{id}",
+            "/dish-categories/page",
+            "/dish-categories/{id}",
+            "/{id}/dishes/options",
             
             // 非遗文化浏览
             "/intangible-cultures/page",

@@ -11,6 +11,7 @@ import com.xitian.djrlpwst.domain.query.DishCategoryQuery;
 import com.xitian.djrlpwst.mapper.DishCategoryMapper;
 import com.xitian.djrlpwst.service.DishCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -42,6 +43,10 @@ public class DishCategoryServiceImpl extends BaseServiceImpl<DishCategory> imple
                 wrapper.like(DishCategory::getName, query.getKeyword());
             }
 
+            if (query.getIsEnabled() != null) {
+                wrapper.eq(DishCategory::getIsEnabled, query.getIsEnabled());
+            }
+
             LocalDateTime start = parseStart(query.getCreateTimeStart());
             if (start != null) {
                 wrapper.ge(DishCategory::getCreateTime, start);
@@ -51,6 +56,36 @@ public class DishCategoryServiceImpl extends BaseServiceImpl<DishCategory> imple
             if (end != null) {
                 wrapper.le(DishCategory::getCreateTime, end);
             }
+        }
+
+        String sortField = param.getSortField();
+        Sort.Direction sortDirection = param.getSortDirection();
+        if (StringUtils.hasText(sortField)) {
+            boolean isAsc = sortDirection == Sort.Direction.ASC;
+            switch (sortField) {
+                case "id":
+                    wrapper.orderBy(true, isAsc, DishCategory::getId);
+                    break;
+                case "name":
+                    wrapper.orderBy(true, isAsc, DishCategory::getName);
+                    break;
+                case "sortOrder":
+                    wrapper.orderBy(true, isAsc, DishCategory::getSortOrder);
+                    break;
+                case "isEnabled":
+                    wrapper.orderBy(true, isAsc, DishCategory::getIsEnabled);
+                    break;
+                case "createTime":
+                    wrapper.orderBy(true, isAsc, DishCategory::getCreateTime);
+                    break;
+                case "updateTime":
+                    wrapper.orderBy(true, isAsc, DishCategory::getUpdateTime);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            wrapper.orderByAsc(DishCategory::getSortOrder).orderByDesc(DishCategory::getId);
         }
 
         Page<DishCategory> result = dishCategoryMapper.selectPage(page, wrapper);

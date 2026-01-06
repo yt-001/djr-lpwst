@@ -5,6 +5,7 @@ import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.ResultBean;
 import com.xitian.djrlpwst.domain.entity.RestaurantDish;
 import com.xitian.djrlpwst.domain.query.RestaurantDishQuery;
+import com.xitian.djrlpwst.domain.vo.DishOptionVO;
 import com.xitian.djrlpwst.service.RestaurantDishService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/restaurants")
@@ -30,6 +33,21 @@ public class RestaurantDishController {
     public ResultBean<List<RestaurantDish>> dishes(@PathVariable Long id) {
         List<RestaurantDish> list = restaurantDishService.listByRestaurantId(id);
         return ResultBean.success(list);
+    }
+
+    @GetMapping("/{id}/dishes/options")
+    @Operation(summary = "查询美食菜品下拉选项(仅ID和名称)", description = "仅管理员可访问")
+    public ResultBean<List<DishOptionVO>> dishOptions(@PathVariable Long id) {
+        List<RestaurantDish> list = restaurantDishService.listByRestaurantId(id);
+        List<DishOptionVO> options = (list == null ? Collections.<RestaurantDish>emptyList() : list).stream()
+                .map(d -> {
+                    DishOptionVO vo = new DishOptionVO();
+                    vo.setId(d.getId());
+                    vo.setName(d.getName());
+                    return vo;
+                })
+                .collect(Collectors.toList());
+        return ResultBean.success(options);
     }
 
     @PostMapping("/{id}/dishes/page")

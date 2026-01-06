@@ -42,8 +42,8 @@ public class RestaurantUpdateDTO {
     @Schema(description = "价格区间(如:￥50-100)")
     private String priceRange;
     
-    @Schema(description = "招牌菜")
-    private String specialty;
+    @Schema(description = "招牌菜ID")
+    private Long specialty;
     
     @Schema(description = "联系电话")
     @Pattern(regexp = "^1[3-9]\\d{9}$|^0\\d{2,3}-?\\d{7,8}$", message = "联系电话格式不正确")

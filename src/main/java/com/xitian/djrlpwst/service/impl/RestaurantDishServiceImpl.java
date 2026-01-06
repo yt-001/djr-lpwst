@@ -11,6 +11,7 @@ import com.xitian.djrlpwst.domain.query.RestaurantDishQuery;
 import com.xitian.djrlpwst.mapper.RestaurantDishMapper;
 import com.xitian.djrlpwst.service.RestaurantDishService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -32,6 +33,7 @@ public class RestaurantDishServiceImpl extends BaseServiceImpl<RestaurantDish> i
     public List<RestaurantDish> listByRestaurantId(Long restaurantId) {
         LambdaQueryWrapper<RestaurantDish> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(RestaurantDish::getRestaurantId, restaurantId);
+        wrapper.orderByAsc(RestaurantDish::getSortOrder).orderByDesc(RestaurantDish::getId);
         return restaurantDishMapper.selectList(wrapper);
     }
 
@@ -72,6 +74,42 @@ public class RestaurantDishServiceImpl extends BaseServiceImpl<RestaurantDish> i
                     wrapper.le(RestaurantDish::getCreateTime, end);
                 }
             }
+        }
+
+        String sortField = param.getSortField();
+        Sort.Direction sortDirection = param.getSortDirection();
+        if (StringUtils.hasText(sortField)) {
+            boolean isAsc = sortDirection == Sort.Direction.ASC;
+            switch (sortField) {
+                case "id":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getId);
+                    break;
+                case "name":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getName);
+                    break;
+                case "categoryId":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getCategoryId);
+                    break;
+                case "price":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getPrice);
+                    break;
+                case "isRecommended":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getIsRecommended);
+                    break;
+                case "sortOrder":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getSortOrder);
+                    break;
+                case "createTime":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getCreateTime);
+                    break;
+                case "updateTime":
+                    wrapper.orderBy(true, isAsc, RestaurantDish::getUpdateTime);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            wrapper.orderByAsc(RestaurantDish::getSortOrder).orderByDesc(RestaurantDish::getId);
         }
 
         Page<RestaurantDish> result = restaurantDishMapper.selectPage(page, wrapper);

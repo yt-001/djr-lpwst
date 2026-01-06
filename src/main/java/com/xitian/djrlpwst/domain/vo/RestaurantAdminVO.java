@@ -30,8 +30,8 @@ public class RestaurantAdminVO extends BaseVO {
     @Schema(description = "价格区间(如:￥50-100)")
     private String priceRange;
     
-    @Schema(description = "招牌菜")
-    private String specialty;
+    @Schema(description = "招牌菜ID")
+    private Long specialty;
     
     @Schema(description = "联系电话")
     private String contactPhone;

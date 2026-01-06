@@ -13,6 +13,9 @@ public class RestaurantCategoryQuery extends BaseQuery {
     @Schema(description = "分类名称")
     private String name;
 
+    @Schema(description = "是否启用：1-启用，0-禁用")
+    private Integer isEnabled;
+
     @Schema(description = "创建时间开始，格式：yyyy-MM-dd")
     private String createTimeStart;
 
