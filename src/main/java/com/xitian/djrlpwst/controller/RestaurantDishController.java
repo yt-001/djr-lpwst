@@ -6,6 +6,7 @@ import com.xitian.djrlpwst.bean.ResultBean;
 import com.xitian.djrlpwst.domain.entity.RestaurantDish;
 import com.xitian.djrlpwst.domain.query.RestaurantDishQuery;
 import com.xitian.djrlpwst.domain.vo.DishOptionVO;
+import com.xitian.djrlpwst.domain.vo.RecommendedDishCardVO;
 import com.xitian.djrlpwst.service.RestaurantDishService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,6 +56,22 @@ public class RestaurantDishController {
     public ResultBean<PageBean<RestaurantDish>> dishesPage(@PathVariable Long id, @RequestBody PageParam<RestaurantDishQuery> param) {
         PageBean<RestaurantDish> page = restaurantDishService.pageByRestaurantId(id, param);
         return ResultBean.success(page);
+    }
+
+    @GetMapping("/recommended-dishes/cards")
+    @Operation(summary = "推荐菜品卡片列表")
+    public ResultBean<List<RecommendedDishCardVO>> recommendedDishCards(
+            @RequestParam(value = "pageNum", required = false) Integer pageNum,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "limit", required = false) Integer limit
+    ) {
+        List<RecommendedDishCardVO> list;
+        if (pageNum != null || pageSize != null) {
+            list = restaurantDishService.pageRecommendedDishCards(pageNum, pageSize);
+        } else {
+            list = restaurantDishService.listRecommendedDishCards(limit);
+        }
+        return ResultBean.success(list);
     }
 
     @PostMapping("/{id}/dishes")

@@ -284,7 +284,9 @@ public class FavoriteServiceImpl extends BaseServiceImpl<Favorite> implements Fa
                 vo.setLocation(restaurant.getLocation());
                 vo.setCoverImage(restaurant.getCoverImage());
                 vo.setPriceRange(restaurant.getPriceRange());
+                vo.setOpenHours(restaurant.getOpenHours());
                 vo.setContactPhone(restaurant.getContactPhone());
+                vo.setRating(restaurant.getRating());
                 voList.add(vo);
             }
         }

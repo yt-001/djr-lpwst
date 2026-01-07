@@ -90,6 +90,7 @@ public enum UserRole {
             // 美食菜品浏览
             "/restaurants/{id}/dishes",
             "/restaurants/{id}/dishes/page",
+            "/restaurants/recommended-dishes/cards",
 
             // 餐饮分类/菜品分类浏览
             "/restaurant-categories/page",
@@ -137,6 +138,7 @@ public enum UserRole {
             // 美食浏览
             "/restaurants/page",
             "/restaurants/{id}",
+            "/restaurants/recommended-dishes/cards",
             
             // 非遗文化浏览
             "/intangible-cultures/page",

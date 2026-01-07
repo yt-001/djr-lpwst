@@ -9,6 +9,9 @@ import lombok.*;
 @Schema(name = "RestaurantQuery", description = "美食查询对象")
 public class RestaurantQuery extends BaseQuery {
     
+    @Schema(description = "餐厅分类ID")
+    private Long categoryId;
+
     @Schema(description = "餐厅/美食名称")
     private String name;
     

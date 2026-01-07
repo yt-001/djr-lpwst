@@ -42,6 +42,10 @@ public class RestaurantServiceImpl extends BaseServiceImpl<Restaurant> implement
         
         // 构建查询条件
         if (query != null) {
+            if (query.getCategoryId() != null) {
+                wrapper.eq(Restaurant::getCategoryId, query.getCategoryId());
+            }
+
             if (StringUtils.hasText(query.getName())) {
                 wrapper.like(Restaurant::getName, query.getName());
             }
@@ -108,6 +112,10 @@ public class RestaurantServiceImpl extends BaseServiceImpl<Restaurant> implement
         
         // 构建查询条件
         if (query != null) {
+            if (query.getCategoryId() != null) {
+                wrapper.eq(Restaurant::getCategoryId, query.getCategoryId());
+            }
+
             if (StringUtils.hasText(query.getName())) {
                 wrapper.like(Restaurant::getName, query.getName());
             }

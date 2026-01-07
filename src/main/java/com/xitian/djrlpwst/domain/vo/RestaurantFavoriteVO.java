@@ -35,7 +35,13 @@ public class RestaurantFavoriteVO extends BaseVO {
     
     @Schema(description = "价格区间")
     private String priceRange;
-    
+
+    @Schema(description = "营业时间")
+    private String openHours;
+
     @Schema(description = "联系电话")
     private String contactPhone;
+
+    @Schema(description = "推荐指数(0-5)")
+    private BigDecimal rating;
 }
