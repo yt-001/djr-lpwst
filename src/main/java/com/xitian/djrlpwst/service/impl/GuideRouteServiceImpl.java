@@ -14,6 +14,7 @@ import com.xitian.djrlpwst.mapper.GuideRouteMapper;
 import com.xitian.djrlpwst.mapper.GuideRoutePointMapper;
 import com.xitian.djrlpwst.mapper.GuideRouteEdgeMapper;
 import com.xitian.djrlpwst.service.GuideRouteService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class GuideRouteServiceImpl extends BaseServiceImpl<GuideRoute> implements GuideRouteService {
 
     @Autowired
@@ -37,11 +39,20 @@ public class GuideRouteServiceImpl extends BaseServiceImpl<GuideRoute> implement
 
     @Override
     public List<GuideRouteCardVO> getHomeCardList() {
+        log.info("[GuideRoute] getHomeCardList called");
         LambdaQueryWrapper<GuideRoute> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(GuideRoute::getStatus, (byte) 1)
                 .eq(GuideRoute::getEditStatus, (byte) 1)
-                .orderByDesc(GuideRoute::getCreateTime);
+                .orderByDesc(GuideRoute::getCreateTime)
+                .orderByDesc(GuideRoute::getUpdateTime)
+                .orderByDesc(GuideRoute::getId);
         List<GuideRoute> routes = guideRouteMapper.selectList(wrapper);
+        log.info("[GuideRoute] DB routes fetched: {}", routes == null ? 0 : routes.size());
+        if (routes != null && !routes.isEmpty()) {
+            GuideRoute first = routes.get(0);
+            log.info("[GuideRoute] first route sample -> id={}, name={}, coverImage={}, editStatus={}, status={}",
+                    first.getId(), first.getName(), first.getCoverImage(), first.getEditStatus(), first.getStatus());
+        }
         if (routes == null || routes.isEmpty()) {
             return new ArrayList<>();
         }

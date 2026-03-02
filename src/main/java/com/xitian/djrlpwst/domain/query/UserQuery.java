@@ -14,4 +14,7 @@ public class UserQuery extends BaseQuery {
     
     @Schema(description = "邮箱")
     private String email;
+
+    @Schema(description = "角色(admin/user)")
+    private String role;
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Schema(name = "AccommodationDetailVO", description = "住宿详情视图对象")
@@ -16,6 +17,12 @@ public class AccommodationDetailVO {
     
     @Schema(description = "编号")
     private Long id;
+    
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
+    
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
     
     @Schema(description = "住宿名称")
     private String name;

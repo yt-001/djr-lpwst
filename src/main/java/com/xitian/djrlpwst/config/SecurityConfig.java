@@ -77,6 +77,7 @@ public class SecurityConfig {
                     "/attractions/page",
                     "/attractions/{id}",
                     "/popular-attractions/**",
+                    "/guide-routes/**",
                     "/accommodations/page",
                     "/accommodations/{id}",
                     "/accommodation-types/**",

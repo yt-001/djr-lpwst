@@ -82,6 +82,8 @@ public class AccommodationConverter {
         
         AccommodationDetailVO vo = new AccommodationDetailVO();
         vo.setId(entity.getId());
+        vo.setCreateTime(entity.getCreateTime());
+        vo.setUpdateTime(entity.getUpdateTime());
         vo.setName(entity.getName());
         vo.setDescription(entity.getDescription());
         vo.setTypeId(entity.getTypeId());

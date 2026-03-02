@@ -1,22 +1,73 @@
 package com.xitian.djrlpwst.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xitian.djrlpwst.bean.PageBean;
+import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.base.service.BaseServiceImpl;
+import com.xitian.djrlpwst.converter.UserConverter;
 import com.xitian.djrlpwst.domain.entity.User;
 import com.xitian.djrlpwst.domain.enums.LoginResult;
+import com.xitian.djrlpwst.domain.query.UserQuery;
+import com.xitian.djrlpwst.domain.vo.UserVO;
 import com.xitian.djrlpwst.mapper.UserMapper;
 import com.xitian.djrlpwst.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User> implements UserService {
     
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserConverter userConverter;
     
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @Override
+    public PageBean<UserVO> page(PageParam<UserQuery> param) {
+        // 1. 构建分页对象
+        Page<User> page = new Page<>(param.getPageNum(), param.getPageSize());
+        
+        // 2. 构建查询条件
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        UserQuery query = param.getQuery();
+        
+        if (query != null) {
+            // 关键字模糊查询 (用户名/手机号/邮箱)
+            if (StringUtils.hasText(query.getKeyword())) {
+                wrapper.and(w -> w
+                    .like(User::getUsername, query.getKeyword())
+                    .or().like(User::getPhone, query.getKeyword())
+                    .or().like(User::getEmail, query.getKeyword())
+                );
+            }
+            
+            // 精确筛选角色
+            if (StringUtils.hasText(query.getRole())) {
+                try {
+                    wrapper.eq(User::getRole, Integer.parseInt(query.getRole()));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        
+        // 倒序排列 (根据ID或创建时间)
+        wrapper.orderByDesc(User::getId);
+        
+        // 3. 执行查询
+        this.page(page, wrapper);
+        
+        // 4. 转换并返回
+        List<UserVO> voList = userConverter.toVOList(page.getRecords());
+        return PageBean.of(voList, page.getTotal(), param);
+    }
     
     @Override
     public User findByUsername(String username) {

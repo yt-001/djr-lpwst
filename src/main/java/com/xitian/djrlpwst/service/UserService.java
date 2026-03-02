@@ -1,13 +1,24 @@
 package com.xitian.djrlpwst.service;
 
+import com.xitian.djrlpwst.bean.PageBean;
+import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.base.service.BaseService;
 import com.xitian.djrlpwst.domain.entity.User;
 import com.xitian.djrlpwst.domain.enums.LoginResult;
+import com.xitian.djrlpwst.domain.query.UserQuery;
+import com.xitian.djrlpwst.domain.vo.UserVO;
 
 /**
  * 用户业务逻辑层接口
  */
 public interface UserService extends BaseService<User> {
+
+    /**
+     * 分页查询用户
+     * @param param 分页参数
+     * @return 分页结果
+     */
+    PageBean<UserVO> page(PageParam<UserQuery> param);
 
     /**
      * 根据用户名查找用户

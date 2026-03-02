@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -30,11 +31,29 @@ public class UserController extends BaseController<User> {
     
     @Autowired
     private UserConverter userConverter;
+
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
     
     @PostMapping("/page")
     @Operation(summary = "分页查询用户")
     public ResultBean<PageBean<UserVO>> page(@RequestBody PageParam<UserQuery> param) {
-        // TODO: 实现分页查询逻辑
+        return ResultBean.success(userService.page(param));
+    }
+
+    @PostMapping("/admin/reset-password")
+    @Operation(summary = "管理端重置用户密码")
+    public ResultBean<Void> resetPassword(@RequestBody Map<String, Object> payload) {
+        Long id = Long.valueOf(payload.get("id").toString());
+        String password = payload.get("password").toString();
+        
+        User user = userService.getById(id);
+        if (user == null) {
+            return ResultBean.fail(StatusCode.DATA_NOT_FOUND, "用户不存在");
+        }
+        
+        user.setPasswordHash(passwordEncoder.encode(password));
+        userService.updateById(user);
         return ResultBean.success();
     }
     
@@ -76,7 +95,7 @@ public class UserController extends BaseController<User> {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除用户")
     public ResultBean<Void> delete(@PathVariable Long id) {
-        // TODO: 实现删除逻辑
+        userService.removeById(id);
         return ResultBean.success();
     }
     
