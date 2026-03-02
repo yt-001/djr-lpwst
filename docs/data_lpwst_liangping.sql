@@ -21,23 +21,23 @@ INSERT INTO accommodation_types (name, description) VALUES
 ('客栈公寓','客栈或公寓式住宿');
 
 INSERT INTO accommodation_facilities (name, description, icon) VALUES
-('免费WiFi','提供免费无线网络','wifi'),
-('WiFi','提供免费无线网络','wifi'),
+('免费WiFi','提供免费无线网络','cluster-o'),
+('WiFi','提供免费无线网络','cluster-o'),
 ('泳池','室外或室内游泳池','fire-o'),
 ('健身房','健身设施','friends-o'),
-('早餐','提供早餐服务','smile-comment-o'),
+('早餐','提供早餐服务','smile-o'),
 ('江景','临江景观房','location-o'),
 ('餐厅','酒店/民宿内餐饮','hotel-o'),
 ('庭院','带私家庭院','flower-o'),
-('茶室','可品茶休闲','smile-comment-o'),
+('茶室','可品茶休闲','smile-o'),
 ('投影仪','客房内提供投影','tv-o'),
-('厨房','可简单烹饪','smile-comment-o'),
+('厨房','可简单烹饪','smile-o'),
 ('公共区域','旅舍公共空间','friends-o'),
-('酒吧','提供酒水与交流空间','smile-comment-o'),
+('酒吧','提供酒水与交流空间','smile-o'),
 ('温泉','温泉设施','fire-o'),
-('会议','会议室/会务','upgrade'),
+('会议','会议室/会务','orders-o'),
 ('洗衣机','可洗衣使用','friends-o'),
-('电梯','公寓/酒店配备电梯','upgrade'),
+('电梯','公寓/酒店配备电梯','arrow-up'),
 ('落地窗','房型带落地窗','location-o');
 
 SET @tid_hotel    = (SELECT id FROM accommodation_types WHERE name='酒店');

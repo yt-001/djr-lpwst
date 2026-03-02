@@ -126,10 +126,12 @@ public enum UserRole {
             // 认证相关
             "/auth/login",
             "/auth/refresh",
+            "/auth/check",
             
             // 景点浏览
             "/attractions/page",
             "/attractions/{id}",
+            "/popular-attractions/**",
             
             // 住宿浏览
             "/accommodations/page",
@@ -143,9 +145,18 @@ public enum UserRole {
             // 非遗文化浏览
             "/intangible-cultures/page",
             "/intangible-cultures/{id}",
+
+            // 评论浏览
+            "/comments/**",
             
             // 测试数据接口
-            "/test-data"
+            "/test-data",
+            
+            // 公开接口
+            "/public/**",
+
+            // 注册相关
+            "/auth/register"
     )),
     
     /**
@@ -155,10 +166,12 @@ public enum UserRole {
             // 认证相关
             "/auth/login",
             "/auth/refresh",
+            "/auth/check",
             
             // 景点浏览
             "/attractions/page",
             "/attractions/{id}",
+            "/popular-attractions/**",
             
             // 住宿浏览
             "/accommodations/page",
@@ -171,6 +184,9 @@ public enum UserRole {
             // 非遗文化浏览
             "/intangible-cultures/page",
             "/intangible-cultures/{id}",
+
+            // 评论浏览
+            "/comments/**",
             
             // 测试数据接口
             "/test-data",
@@ -208,8 +224,8 @@ public enum UserRole {
      * @return 是否允许访问
      */
     public boolean isAllowedPath(String path) {
-        // 公开访问角色可以访问所有PUBLIC角色允许的路径
-        if (this == PUBLIC) {
+        // 管理员可以访问所有路径
+        if (this == ADMIN) {
             return true;
         }
         

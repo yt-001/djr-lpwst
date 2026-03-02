@@ -13,6 +13,8 @@ import com.xitian.djrlpwst.domain.vo.OrderAdminVO;
 import com.xitian.djrlpwst.domain.vo.OrderVO;
 import com.xitian.djrlpwst.mapper.OrderMapper;
 import com.xitian.djrlpwst.service.OrderService;
+import com.xitian.djrlpwst.service.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class OrderServiceImpl extends BaseServiceImpl<Order> implements OrderSer
     
     @Autowired
     private OrderConverter orderConverter;
+    
+    @Autowired
+    private UserService userService;
     
     // 订单编号生成器
     private final AtomicLong orderNoGenerator = new AtomicLong(System.currentTimeMillis());
@@ -200,6 +205,18 @@ public class OrderServiceImpl extends BaseServiceImpl<Order> implements OrderSer
         
         // 转换结果为VO对象
         List<OrderAdminVO> voList = orderConverter.toAdminVOList(result.getRecords());
+        
+        // 填充用户名
+        if (voList != null && !voList.isEmpty()) {
+            for (OrderAdminVO vo : voList) {
+                if (vo.getUserId() != null) {
+                    com.xitian.djrlpwst.domain.entity.User user = userService.getById(vo.getUserId());
+                    if (user != null) {
+                        vo.setUsername(user.getUsername());
+                    }
+                }
+            }
+        }
         
         // 封装分页结果
         PageBean<OrderAdminVO> pageBean = new PageBean<>();

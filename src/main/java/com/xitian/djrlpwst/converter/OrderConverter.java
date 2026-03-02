@@ -49,6 +49,7 @@ public class OrderConverter {
         vo.setOrderNo(entity.getOrderNo());
         vo.setUserId(entity.getUserId());
         vo.setProductType(entity.getProductType());
+        vo.setProductId(entity.getProductId());
         vo.setProductName(entity.getProductName());
         vo.setDescription(entity.getDescription());
         vo.setQuantity(entity.getQuantity());

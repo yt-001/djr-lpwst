@@ -117,6 +117,8 @@ public class PermissionCheckFilter extends OncePerRequestFilter {
         // 公开接口白名单
         return requestURI.startsWith("/auth/login") ||
                 requestURI.startsWith("/auth/refresh") ||
+                requestURI.startsWith("/auth/check") ||
+                requestURI.startsWith("/public/") ||
                 requestURI.equals("/test-data") ||
                 UserRole.PUBLIC.isAllowedPath(requestURI);
     }

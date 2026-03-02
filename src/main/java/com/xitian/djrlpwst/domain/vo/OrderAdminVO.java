@@ -22,11 +22,20 @@ public class OrderAdminVO extends BaseVO {
     @Schema(description = "用户ID")
     private Long userId;
     
+    @Schema(description = "用户名")
+    private String username;
+    
     @Schema(description = "产品类型(1-景点门票,2-美食消费券,3-住宿消费券)")
     private Integer productType;
     
+    @Schema(description = "产品ID(根据product_type关联不同表)")
+    private Long productId;
+    
     @Schema(description = "产品名称")
     private String productName;
+    
+    @Schema(description = "产品图片URL")
+    private String productImageUrl;
     
     @Schema(description = "消费描述(如:住宿套餐类型/美食具体菜品等)")
     private String description;

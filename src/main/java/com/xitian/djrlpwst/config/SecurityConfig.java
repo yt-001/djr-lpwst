@@ -62,11 +62,31 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // 允许所有用户访问的公开接口
                 .requestMatchers(
-                    "/auth/**",
+                    "/auth/login",
+                    "/auth/refresh",
+                    "/auth/check",
+                    "/public/**",
+                    "/test-data/**",
                     "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/test-data/**"
+                    "/v3/api-docs/**"
+                ).permitAll()
+                // 景点、住宿、美食、非遗、评论等查询接口允许公开访问
+                .requestMatchers(
+                    "/attractions/page",
+                    "/attractions/{id}",
+                    "/popular-attractions/**",
+                    "/accommodations/page",
+                    "/accommodations/{id}",
+                    "/accommodation-types/**",
+                    "/accommodation-facilities/**",
+                    "/restaurants/page",
+                    "/restaurants/{id}",
+                    "/restaurants/recommended-dishes/cards",
+                    "/intangible-cultures/page",
+                    "/intangible-cultures/{id}",
+                    "/comments/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

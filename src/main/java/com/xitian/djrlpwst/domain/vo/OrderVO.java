@@ -31,6 +31,9 @@ public class OrderVO extends BaseVO {
     @Schema(description = "产品名称")
     private String productName;
     
+    @Schema(description = "产品图片URL")
+    private String productImageUrl;
+    
     @Schema(description = "消费描述(如:住宿套餐类型/美食具体菜品等)")
     private String description;
     
