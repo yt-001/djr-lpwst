@@ -57,3 +57,11 @@ cookie:
 # 文件上传配置
 file:
   upload-dir: F:/djr-img/
+
+ai:
+  openai:
+    api-key: sk-0ad29a80e343498fae8c17db772e32b5
+    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    model: qwen3.5-plus
+    temperature: 0.2
+    timeout-seconds: 60

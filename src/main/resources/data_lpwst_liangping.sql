@@ -7,6 +7,8 @@ TRUNCATE TABLE accommodation_types;
 TRUNCATE TABLE attractions;
 TRUNCATE TABLE intangible_culture;
 TRUNCATE TABLE restaurants;
+TRUNCATE TABLE ai_greetings;
+TRUNCATE TABLE ai_prompts;
 TRUNCATE TABLE users;
 TRUNCATE TABLE comments;
 TRUNCATE TABLE favorites;
@@ -18,6 +20,21 @@ INSERT INTO accommodation_types (name, description) VALUES
                                                         ('农家乐','乡村休闲，贴近自然'),
                                                         ('青年旅舍','经济型多人床位或简易房'),
                                                         ('客栈公寓','客栈或公寓式住宿');
+
+INSERT INTO ai_greetings (content, is_enabled, sort_order) VALUES
+                                                               ('你好，欢迎来到梁平文旅智能客服，有什么可以帮你？', 1, 1),
+                                                               ('嗨～想了解梁平的景点、美食或路线吗？', 1, 2),
+                                                               ('欢迎咨询梁平出行与游玩建议，我来帮你规划～', 1, 3),
+                                                               ('梁平文旅小助手上线，随时为你解答～', 1, 4),
+                                                               ('你好，我是梁平文旅智能客服，欢迎提问。', 1, 5);
+
+INSERT INTO ai_prompts (content, is_enabled, sort_order) VALUES
+                                                             ('梁平必去景点有哪些？', 1, 1),
+                                                             ('推荐一条梁平一日游路线', 1, 2),
+                                                             ('梁平特色美食有哪些？', 1, 3),
+                                                             ('从高铁站到景区怎么走？', 1, 4),
+                                                             ('梁平有哪些适合亲子的景点？', 1, 5),
+                                                             ('双桂湖怎么玩比较合适？', 1, 6);
 
 INSERT INTO accommodation_facilities (name, description, icon) VALUES
                                                                    ('免费WiFi','提供免费无线网络','cluster-o'),

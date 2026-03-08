@@ -58,7 +58,10 @@ public enum UserRole {
             "/orders/**",
             
             // 文件上传
-            "/files/upload-images"
+            "/files/upload-images",
+
+            // AI 对话
+            "/ai/chat"
     )),
     
     /**
@@ -116,7 +119,10 @@ public enum UserRole {
             "/orders/**",
             
             // 文件上传
-            "/files/upload-images"
+            "/files/upload-images",
+
+            // AI 对话
+            "/ai/chat"
     )),
     
     /**
@@ -156,7 +162,11 @@ public enum UserRole {
             "/public/**",
 
             // 注册相关
-            "/auth/register"
+            "/auth/register",
+
+            // AI 问候与推荐
+            "/ai/greetings/**",
+            "/ai/prompts/**"
     )),
     
     /**
@@ -192,7 +202,11 @@ public enum UserRole {
             "/test-data",
             
             // 公开接口
-            "/public/**"
+            "/public/**",
+
+            // AI 问候与推荐
+            "/ai/greetings/**",
+            "/ai/prompts/**"
     ));
     
     private final Integer code;

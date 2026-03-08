@@ -67,6 +67,8 @@ public class SecurityConfig {
                     "/auth/login",
                     "/auth/refresh",
                     "/auth/check",
+                    "/ai/greetings/**",
+                    "/ai/prompts/**",
                     "/public/**",
                     "/test-data/**",
                     "/swagger-ui/**",

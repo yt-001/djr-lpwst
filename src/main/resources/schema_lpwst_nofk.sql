@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS accommodation_types;
 DROP TABLE IF EXISTS attractions;
 DROP TABLE IF EXISTS intangible_culture;
 DROP TABLE IF EXISTS restaurants;
+DROP TABLE IF EXISTS ai_prompts;
+DROP TABLE IF EXISTS ai_greetings;
 DROP TABLE IF EXISTS users;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -128,6 +130,34 @@ COMMENT '美食表' COLLATE = utf8mb4_unicode_ci;
 CREATE INDEX idx_restaurants_location ON restaurants (location);
 CREATE INDEX idx_restaurants_rating   ON restaurants (rating);
 
+CREATE TABLE ai_greetings
+(
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    content     VARCHAR(255) NOT NULL COMMENT '问候语内容',
+    is_enabled  TINYINT(1) DEFAULT 1 NOT NULL COMMENT '是否启用',
+    sort_order  INT DEFAULT 0 NULL COMMENT '排序',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP NULL COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+)
+COMMENT 'AI问候语' COLLATE = utf8mb4_unicode_ci;
+
+CREATE INDEX idx_ai_greetings_enabled ON ai_greetings (is_enabled);
+CREATE INDEX idx_ai_greetings_sort    ON ai_greetings (sort_order);
+
+CREATE TABLE ai_prompts
+(
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    content     VARCHAR(255) NOT NULL COMMENT '推荐问题',
+    is_enabled  TINYINT(1) DEFAULT 1 NOT NULL COMMENT '是否启用',
+    sort_order  INT DEFAULT 0 NULL COMMENT '排序',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP NULL COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+)
+COMMENT 'AI推荐问题' COLLATE = utf8mb4_unicode_ci;
+
+CREATE INDEX idx_ai_prompts_enabled ON ai_prompts (is_enabled);
+CREATE INDEX idx_ai_prompts_sort    ON ai_prompts (sort_order);
+
 CREATE TABLE users
 (
     id            INT AUTO_INCREMENT PRIMARY KEY,
@@ -214,4 +244,3 @@ CREATE INDEX idx_orders_create_time ON orders (create_time);
 CREATE INDEX idx_orders_product     ON orders (product_type, product_id);
 CREATE INDEX idx_orders_status      ON orders (status);
 CREATE INDEX idx_orders_user_id     ON orders (user_id);
-
