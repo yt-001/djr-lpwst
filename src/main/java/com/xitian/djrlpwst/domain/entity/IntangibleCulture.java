@@ -1,35 +1,65 @@
 package com.xitian.djrlpwst.domain.entity;
 
-import com.xitian.djrlpwst.bean.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import com.xitian.djrlpwst.bean.base.BaseEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
+import java.time.LocalDateTime;
+
+/**
+ * 非物质文化遗产实体类
+ */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @TableName("intangible_culture")
-@Schema(name = "IntangibleCulture", description = "非物质文化实体类")
 public class IntangibleCulture extends BaseEntity {
     
-    @Schema(description = "非遗项目名称")
+    /**
+     * 主键ID
+     */
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    
+    /**
+     * 名称
+     */
     private String name;
     
-    @Schema(description = "描述")
+    /**
+     * 描述
+     */
     private String description;
     
-    @Schema(description = "非遗类型")
+    /**
+     * 非遗类型
+     */
     private String type;
     
-    @Schema(description = "传承人")
+    /**
+     * 传承人
+     */
     private String inheritor;
     
-    @Schema(description = "封面图片")
+    /**
+     * 封面图片
+     */
     private String coverImage;
     
-    @Schema(description = "图片JSON数组")
+    /**
+     * 图片JSON数组
+     */
     private String images;
+    
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+    
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 }

@@ -2,10 +2,12 @@ package com.xitian.djrlpwst.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xitian.djrlpwst.bean.PageBean;
+import com.xitian.djrlpwst.bean.PageParam;
 import com.xitian.djrlpwst.bean.base.service.BaseService;
 import com.xitian.djrlpwst.domain.entity.Comment;
 import com.xitian.djrlpwst.domain.query.CommentQuery;
 import com.xitian.djrlpwst.domain.vo.AttractionCommentVO;
+import com.xitian.djrlpwst.domain.vo.CommentVO;
 
 public interface CommentService extends BaseService<Comment> {
     
@@ -16,6 +18,12 @@ public interface CommentService extends BaseService<Comment> {
      * @return 景点评论分页数据
      */
     PageBean<AttractionCommentVO> getAttractionComments(Page<Comment> page, CommentQuery query);
+
+    PageBean<CommentVO> getAttractionCommentsAdmin(PageParam<CommentQuery> param);
+
+    PageBean<CommentVO> getRestaurantCommentsAdmin(PageParam<CommentQuery> param);
+
+    PageBean<CommentVO> getAccommodationCommentsAdmin(PageParam<CommentQuery> param);
     
     /**
      * 添加景点评论

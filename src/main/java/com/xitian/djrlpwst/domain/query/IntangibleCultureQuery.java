@@ -1,17 +1,33 @@
 package com.xitian.djrlpwst.domain.query;
 
 import com.xitian.djrlpwst.bean.base.BaseQuery;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * 非物质文化遗产查询对象
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(name = "IntangibleCultureQuery", description = "非物质文化查询对象")
 public class IntangibleCultureQuery extends BaseQuery {
     
-    @Schema(description = "非遗项目名称")
+    /**
+     * 名称
+     */
     private String name;
     
-    @Schema(description = "非遗类型")
+    /**
+     * 非遗类型
+     */
     private String type;
+    
+    /**
+     * 传承人
+     */
+    private String inheritor;
+    
+    /**
+     * 关键词（用于模糊搜索）
+     */
+    private String keyword;
 }

@@ -31,8 +31,8 @@ public class CommentController extends BaseController<Comment> {
     @PostMapping("/page")
     @Operation(summary = "分页查询评论")
     public ResultBean<PageBean<CommentVO>> page(@RequestBody PageParam<CommentQuery> param) {
-        // TODO: 实现分页查询逻辑
-        return ResultBean.success();
+        PageBean<CommentVO> page = commentService.getAttractionCommentsAdmin(param);
+        return ResultBean.success(page);
     }
     
     @PostMapping("/attractions/page")
@@ -45,6 +45,24 @@ public class CommentController extends BaseController<Comment> {
         PageBean<AttractionCommentVO> pageBean = commentService.getAttractionComments(page, param.getQuery());
         
         return ResultBean.success(pageBean);
+    }
+
+    @PostMapping("/admin/attractions/page")
+    @Operation(summary = "管理员分页查询景点评论")
+    public ResultBean<PageBean<CommentVO>> adminAttractionCommentsPage(@RequestBody PageParam<CommentQuery> param) {
+        return ResultBean.success(commentService.getAttractionCommentsAdmin(param));
+    }
+
+    @PostMapping("/admin/restaurants/page")
+    @Operation(summary = "管理员分页查询餐饮评论")
+    public ResultBean<PageBean<CommentVO>> adminRestaurantCommentsPage(@RequestBody PageParam<CommentQuery> param) {
+        return ResultBean.success(commentService.getRestaurantCommentsAdmin(param));
+    }
+
+    @PostMapping("/admin/accommodations/page")
+    @Operation(summary = "管理员分页查询住宿评论")
+    public ResultBean<PageBean<CommentVO>> adminAccommodationCommentsPage(@RequestBody PageParam<CommentQuery> param) {
+        return ResultBean.success(commentService.getAccommodationCommentsAdmin(param));
     }
     
     @PostMapping("/attractions/add")
@@ -90,14 +108,25 @@ public class CommentController extends BaseController<Comment> {
     @PutMapping
     @Operation(summary = "修改评论")
     public ResultBean<Void> update(@RequestBody Comment entity) {
-        // TODO: 实现修改逻辑
+        if (entity.getId() == null) {
+            return ResultBean.fail(StatusCode.VALIDATION_ERROR, "评论ID不能为空");
+        }
+        Comment existing = commentService.getById(entity.getId());
+        if (existing == null) {
+            return ResultBean.fail(StatusCode.DATA_NOT_FOUND, "评论不存在");
+        }
+        BeanUtil.copyNonNullProperties(entity, existing);
+        commentService.updateById(existing);
         return ResultBean.success();
     }
     
     @DeleteMapping("/{id}")
     @Operation(summary = "删除评论")
     public ResultBean<Void> delete(@PathVariable Long id) {
-        // TODO: 实现删除逻辑
+        boolean ok = commentService.removeById(id);
+        if (!ok) {
+            return ResultBean.fail(StatusCode.DATA_NOT_FOUND, "评论不存在");
+        }
         return ResultBean.success();
     }
     
